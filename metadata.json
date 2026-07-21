@@ -1,0 +1,6 @@
+{
+  "name": "Sınav Merkezi 724",
+  "description": "7/24 Yapay Zeka destekli kişiselleştirilmiş ders, konu ve deneme sınavı çalışma merkezi.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
