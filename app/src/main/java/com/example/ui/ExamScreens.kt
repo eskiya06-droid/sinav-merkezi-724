@@ -57,7 +57,7 @@ fun DrawingCanvas(commandsJson: String?, modifier: Modifier = Modifier) {
             .height(180.dp)
             .clip(RoundedCornerShape(12.dp))
             .background(Color(0xFFF3EDF7))
-            .border(1.dp, DarkBorder.copy(alpha = 0.5f), RoundedCornerShape(12.dp))
+            .border(1.dp, BrandBorder.copy(alpha = 0.5f), RoundedCornerShape(12.dp))
             .drawBehind {
                 // Draw cool blueprint grid
                 val step = 25.dp.toPx()
@@ -102,7 +102,7 @@ fun DrawingCanvas(commandsJson: String?, modifier: Modifier = Modifier) {
                                 val x2 = cmd.optDouble("x2", 0.0).toFloat() * scaleX
                                 val y2 = cmd.optDouble("y2", 0.0).toFloat() * scaleY
                                 drawLine(
-                                    color = BrightCyan,
+                                    color = BrandPrimary,
                                     start = Offset(x1, y1),
                                     end = Offset(x2, y2),
                                     strokeWidth = 3f,
@@ -114,7 +114,7 @@ fun DrawingCanvas(commandsJson: String?, modifier: Modifier = Modifier) {
                                 val cy = cmd.optDouble("cy", 100.0).toFloat() * scaleY
                                 val r = cmd.optDouble("r", 30.0).toFloat() * scaleX
                                 drawCircle(
-                                    color = NeonPurple,
+                                    color = BrandSecondary,
                                     center = Offset(cx, cy),
                                     radius = r,
                                     style = Stroke(width = 3f)
@@ -126,7 +126,7 @@ fun DrawingCanvas(commandsJson: String?, modifier: Modifier = Modifier) {
                                 val w = cmd.optDouble("w", 100.0).toFloat() * scaleX
                                 val h = cmd.optDouble("h", 60.0).toFloat() * scaleY
                                 drawRect(
-                                    color = BrightCyan,
+                                    color = BrandPrimary,
                                     topLeft = Offset(x, y),
                                     size = Size(w, h),
                                     style = Stroke(width = 3f)
@@ -148,7 +148,7 @@ fun DrawingCanvas(commandsJson: String?, modifier: Modifier = Modifier) {
                                 }
                                 drawPath(
                                     path = path,
-                                    color = BrightCyan,
+                                    color = BrandPrimary,
                                     style = Stroke(width = 3f)
                                 )
                             }
@@ -202,7 +202,7 @@ fun MarkdownText(text: String, modifier: Modifier = Modifier) {
                 trimmed.startsWith("###") -> {
                     Text(
                         text = trimmed.removePrefix("###").trim(),
-                        color = BrightCyan,
+                        color = BrandPrimary,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.padding(top = 12.dp, bottom = 4.dp)
@@ -211,7 +211,7 @@ fun MarkdownText(text: String, modifier: Modifier = Modifier) {
                 trimmed.startsWith("##") -> {
                     Text(
                         text = trimmed.removePrefix("##").trim(),
-                        color = BrightCyan,
+                        color = BrandPrimary,
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.padding(top = 16.dp, bottom = 6.dp)
@@ -229,7 +229,7 @@ fun MarkdownText(text: String, modifier: Modifier = Modifier) {
                 trimmed.startsWith("*") || trimmed.startsWith("-") -> {
                     val rawContent = if (trimmed.startsWith("*")) trimmed.removePrefix("*").trim() else trimmed.removePrefix("-").trim()
                     Row(modifier = Modifier.padding(start = 8.dp, top = 4.dp, bottom = 4.dp)) {
-                        Text(text = "•", color = BrightCyan, fontSize = 16.sp, modifier = Modifier.padding(end = 8.dp))
+                        Text(text = "•", color = BrandPrimary, fontSize = 16.sp, modifier = Modifier.padding(end = 8.dp))
                         FormattedLineText(rawContent)
                     }
                 }
@@ -253,7 +253,7 @@ fun FormattedLineText(rawText: String, modifier: Modifier = Modifier) {
             text = androidx.compose.ui.text.buildAnnotatedString {
                 parts.forEachIndexed { index, part ->
                     if (index % 2 == 1) {
-                        pushStyle(androidx.compose.ui.text.SpanStyle(fontWeight = FontWeight.Bold, color = BrightCyan))
+                        pushStyle(androidx.compose.ui.text.SpanStyle(fontWeight = FontWeight.Bold, color = BrandPrimary))
                         append(part)
                         pop()
                     } else {
@@ -292,7 +292,7 @@ fun CircularStatRing(
     ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
             drawCircle(
-                color = DarkBorder.copy(alpha = 0.3f),
+                color = BrandBorder.copy(alpha = 0.3f),
                 style = Stroke(width = 8.dp.toPx())
             )
             drawArc(
@@ -330,215 +330,224 @@ fun OnboardingScreen(onRegister: (String, String, String) -> Unit) {
     val exams = listOf("YKS (TYT-AYT)", "LGS", "KPSS", "DGS")
     val fields = listOf("Sayısal", "Sözel", "Eşit Ağırlık", "Genel")
 
-    Box(
+    Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(
-                Brush.verticalGradient(
-                    colors = listOf(MidnightDark, NeonPurple.copy(alpha = 0.5f))
-                )
-            )
+            .background(BrandBackground)
             .windowInsetsPadding(WindowInsets.safeDrawing)
     ) {
-        Column(
+        // Hero Section
+        Box(
             modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Spacer(modifier = Modifier.height(24.dp))
-            
-            // Brand Badge
-            Box(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(20.dp))
-                    .background(BrightCyan.copy(alpha = 0.1f))
-                    .border(1.dp, BrightCyan.copy(alpha = 0.3f), RoundedCornerShape(20.dp))
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        imageVector = Icons.Default.AutoAwesome,
-                        contentDescription = "AI Powered",
-                        tint = BrightCyan,
-                        modifier = Modifier.size(16.dp)
-                    )
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text(
-                        text = "YAPAY ZEKA DESTEKLİ",
-                        color = BrightCyan,
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Bold,
-                        letterSpacing = 1.sp
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Text(
-                text = "Sınav Merkezi 724",
-                color = TextLight,
-                fontSize = 32.sp,
-                fontWeight = FontWeight.ExtraBold,
-                textAlign = TextAlign.Center
-            )
-            Text(
-                text = "7/24 Kesintisiz Kişisel Sınav Hazırlık Ortağınız",
-                color = TextMuted,
-                fontSize = 14.sp,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(top = 4.dp, bottom = 32.dp)
-            )
-
-            // Onboarding Card
-            Card(
-                colors = CardDefaults.cardColors(containerColor = SlateBlueCard),
-                border = BorderStroke(1.dp, DarkBorder),
-                shape = RoundedCornerShape(16.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Column(modifier = Modifier.padding(20.dp)) {
-                    Text(
-                        text = "Profilini Oluştur",
-                        color = TextLight,
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(bottom = 16.dp)
-                    )
-
-                    // Username Input
-                    Text(
-                        text = "Adınız Soyadınız",
-                        color = TextMuted,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        modifier = Modifier.padding(bottom = 6.dp)
-                    )
-                    OutlinedTextField(
-                        value = name,
-                        onValueChange = { name = it },
-                        placeholder = { Text("Örn: Ahmet Yılmaz", color = TextMuted) },
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = BrightCyan,
-                            unfocusedBorderColor = DarkBorder,
-                            focusedTextColor = TextLight,
-                            unfocusedTextColor = TextLight
-                        ),
-                        singleLine = true,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .testTag("username_input")
-                    )
-
-                    Spacer(modifier = Modifier.height(20.dp))
-
-                    // Exam Target
-                    Text(
-                        text = "Hedeflediğiniz Sınav",
-                        color = TextMuted,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        modifier = Modifier.padding(bottom = 6.dp)
-                    )
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        exams.forEach { exam ->
-                            val isSelected = selectedExam == exam
-                            Box(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .clip(RoundedCornerShape(8.dp))
-                                    .background(if (isSelected) DeepViolet else Color(0xFFF7F2FA))
-                                    .border(
-                                        1.dp,
-                                        if (isSelected) BrightCyan else DarkBorder,
-                                        RoundedCornerShape(8.dp)
-                                    )
-                                    .clickable { selectedExam = exam }
-                                    .padding(vertical = 10.dp),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    text = exam,
-                                    color = if (isSelected) TextLight else TextMuted,
-                                    fontSize = 11.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    textAlign = TextAlign.Center
-                                )
-                            }
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(20.dp))
-
-                    // Area / Field
-                    Text(
-                        text = "Alanınız / Branşınız",
-                        color = TextMuted,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        modifier = Modifier.padding(bottom = 6.dp)
-                    )
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        fields.forEach { field ->
-                            val isSelected = selectedField == field
-                            Box(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .clip(RoundedCornerShape(8.dp))
-                                    .background(if (isSelected) DeepViolet else Color(0xFFF7F2FA))
-                                    .border(
-                                        1.dp,
-                                        if (isSelected) BrightCyan else DarkBorder,
-                                        RoundedCornerShape(8.dp)
-                                    )
-                                    .clickable { selectedField = field }
-                                    .padding(vertical = 10.dp),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    text = field,
-                                    color = if (isSelected) TextLight else TextMuted,
-                                    fontSize = 11.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    textAlign = TextAlign.Center
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(32.dp))
-
-            Button(
-                onClick = { if (name.trim().isNotEmpty()) onRegister(name, selectedExam, selectedField) },
-                enabled = name.trim().isNotEmpty(),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = BrightCyan,
-                    contentColor = MidnightDark,
-                    disabledContainerColor = DarkBorder,
-                    disabledContentColor = TextMuted
+                .fillMaxWidth()
+                .weight(0.35f)
+                .background(
+                    Brush.verticalGradient(
+                        colors = listOf(BrandPrimary, BrandPrimary.copy(alpha = 0.8f))
+                    ),
+                    shape = RoundedCornerShape(bottomStart = 32.dp, bottomEnd = 32.dp)
                 ),
-                shape = RoundedCornerShape(12.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(54.dp)
-                    .testTag("submit_button")
-            ) {
-                Text(
-                    text = "Sisteme Giriş Yap ve Başla",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold
+            contentAlignment = Alignment.Center
+        ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                // Book Icon
+                Icon(
+                    imageVector = Icons.Default.MenuBook,
+                    contentDescription = "Logo",
+                    tint = BrandSurface,
+                    modifier = Modifier.size(64.dp)
                 )
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = "KİTAP",
+                        color = BrandSurface,
+                        fontSize = 36.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        letterSpacing = 2.sp
+                    )
+                    Text(
+                        text = "7/24",
+                        color = BrandSecondary,
+                        fontSize = 36.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        modifier = Modifier.padding(start = 8.dp)
+                    )
+                }
+                Text(
+                    text = "Dijital Sınav Ortağınız",
+                    color = BrandSurface.copy(alpha = 0.8f),
+                    fontSize = 14.sp,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+            }
+        }
+
+        // Form Section
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(0.65f)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 24.dp)
+                    .offset(y = (-32).dp) // Overlap the hero section slightly
+                    .verticalScroll(rememberScrollState()),
+            ) {
+                // Onboarding Card
+                Card(
+                    colors = CardDefaults.cardColors(containerColor = BrandSurface),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+                    shape = RoundedCornerShape(24.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(modifier = Modifier.padding(24.dp)) {
+                        Text(
+                            text = "Profilinizi Oluşturun",
+                            color = TextLight,
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(bottom = 20.dp)
+                        )
+
+                        // Username Input
+                        Text(
+                            text = "Adınız Soyadınız",
+                            color = TextMuted,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            modifier = Modifier.padding(bottom = 6.dp)
+                        )
+                        OutlinedTextField(
+                            value = name,
+                            onValueChange = { name = it },
+                            placeholder = { Text("Örn: Ahmet Yılmaz", color = TextMuted) },
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = BrandPrimary,
+                                unfocusedBorderColor = BrandBorder,
+                                focusedTextColor = TextLight,
+                                unfocusedTextColor = TextLight,
+                                cursorColor = BrandPrimary
+                            ),
+                            singleLine = true,
+                            shape = RoundedCornerShape(12.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .testTag("username_input")
+                        )
+
+                        Spacer(modifier = Modifier.height(24.dp))
+
+                        // Exam Target
+                        Text(
+                            text = "Hedeflediğiniz Sınav",
+                            color = TextMuted,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            exams.forEach { exam ->
+                                val isSelected = selectedExam == exam
+                                Box(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .clip(RoundedCornerShape(12.dp))
+                                        .background(if (isSelected) BrandPrimary else BrandBackground)
+                                        .border(
+                                            1.dp,
+                                            if (isSelected) BrandPrimary else BrandBorder,
+                                            RoundedCornerShape(12.dp)
+                                        )
+                                        .clickable { selectedExam = exam }
+                                        .padding(vertical = 12.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = exam,
+                                        color = if (isSelected) BrandSurface else TextMuted,
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        textAlign = TextAlign.Center
+                                    )
+                                }
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(24.dp))
+
+                        // Area / Field
+                        Text(
+                            text = "Alanınız / Branşınız",
+                            color = TextMuted,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            fields.forEach { field ->
+                                val isSelected = selectedField == field
+                                Box(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .clip(RoundedCornerShape(12.dp))
+                                        .background(if (isSelected) BrandPrimary else BrandBackground)
+                                        .border(
+                                            1.dp,
+                                            if (isSelected) BrandPrimary else BrandBorder,
+                                            RoundedCornerShape(12.dp)
+                                        )
+                                        .clickable { selectedField = field }
+                                        .padding(vertical = 12.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = field,
+                                        color = if (isSelected) BrandSurface else TextMuted,
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        textAlign = TextAlign.Center
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(32.dp))
+
+                Button(
+                    onClick = { if (name.trim().isNotEmpty()) onRegister(name, selectedExam, selectedField) },
+                    enabled = name.trim().isNotEmpty(),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = BrandSecondary, // Orange CTA
+                        contentColor = BrandSurface,
+                        disabledContainerColor = BrandBorder,
+                        disabledContentColor = TextMuted
+                    ),
+                    shape = RoundedCornerShape(16.dp),
+                    elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp)
+                        .testTag("submit_button")
+                ) {
+                    Text(
+                        text = "Sisteme Giriş Yap",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+                
+                Spacer(modifier = Modifier.height(24.dp))
             }
         }
     }
@@ -556,7 +565,7 @@ fun DashboardScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(MidnightDark)
+            .background(BrandBackground)
     ) {
         LazyColumn(
             modifier = Modifier
@@ -568,8 +577,8 @@ fun DashboardScreen(
 
                 // Welcome Header Card
                 Card(
-                    colors = CardDefaults.cardColors(containerColor = SlateBlueCard),
-                    border = BorderStroke(1.dp, DarkBorder),
+                    colors = CardDefaults.cardColors(containerColor = BrandSurface),
+                    border = BorderStroke(1.dp, BrandBorder),
                     shape = RoundedCornerShape(20.dp),
                     modifier = Modifier.fillMaxWidth()
                 ) {
@@ -593,13 +602,13 @@ fun DashboardScreen(
                                     Icon(
                                         imageVector = Icons.Default.Flag,
                                         contentDescription = "Target",
-                                        tint = BrightCyan,
+                                        tint = BrandPrimary,
                                         modifier = Modifier.size(16.dp)
                                     )
                                     Spacer(modifier = Modifier.width(4.dp))
                                     Text(
                                         text = "${profile.targetExam} | ${profile.field}",
-                                        color = BrightCyan,
+                                        color = BrandPrimary,
                                         fontSize = 12.sp,
                                         fontWeight = FontWeight.Bold
                                     )
@@ -632,7 +641,7 @@ fun DashboardScreen(
                         }
 
                         Divider(
-                            color = DarkBorder.copy(alpha = 0.5f),
+                            color = BrandBorder.copy(alpha = 0.5f),
                             modifier = Modifier.padding(vertical = 16.dp)
                         )
 
@@ -685,8 +694,8 @@ fun DashboardScreen(
                 ) {
                     // Module 1: Instant Test
                     Card(
-                        colors = CardDefaults.cardColors(containerColor = SlateBlueCard),
-                        border = BorderStroke(1.dp, DarkBorder),
+                        colors = CardDefaults.cardColors(containerColor = BrandSurface),
+                        border = BorderStroke(1.dp, BrandBorder),
                         shape = RoundedCornerShape(16.dp),
                         modifier = Modifier
                             .weight(1f)
@@ -697,13 +706,13 @@ fun DashboardScreen(
                                 modifier = Modifier
                                     .size(36.dp)
                                     .clip(RoundedCornerShape(8.dp))
-                                    .background(BrightCyan.copy(alpha = 0.15f)),
+                                    .background(BrandPrimary.copy(alpha = 0.15f)),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.OfflineBolt,
                                     contentDescription = "Anlık Test",
-                                    tint = BrightCyan,
+                                    tint = BrandPrimary,
                                     modifier = Modifier.size(20.dp)
                                 )
                             }
@@ -725,8 +734,8 @@ fun DashboardScreen(
 
                     // Module 2: Full Mock Exam
                     Card(
-                        colors = CardDefaults.cardColors(containerColor = SlateBlueCard),
-                        border = BorderStroke(1.dp, DarkBorder),
+                        colors = CardDefaults.cardColors(containerColor = BrandSurface),
+                        border = BorderStroke(1.dp, BrandBorder),
                         shape = RoundedCornerShape(16.dp),
                         modifier = Modifier
                             .weight(1f)
@@ -737,13 +746,13 @@ fun DashboardScreen(
                                 modifier = Modifier
                                     .size(36.dp)
                                     .clip(RoundedCornerShape(8.dp))
-                                    .background(NeonPurple.copy(alpha = 0.15f)),
+                                    .background(BrandSecondary.copy(alpha = 0.15f)),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Timer,
                                     contentDescription = "Tam Deneme",
-                                    tint = NeonPurple,
+                                    tint = BrandSecondary,
                                     modifier = Modifier.size(20.dp)
                                 )
                             }
@@ -773,8 +782,8 @@ fun DashboardScreen(
                 ) {
                     // AI Karne Analizi
                     Card(
-                        colors = CardDefaults.cardColors(containerColor = SlateBlueCard),
-                        border = BorderStroke(1.dp, DarkBorder),
+                        colors = CardDefaults.cardColors(containerColor = BrandSurface),
+                        border = BorderStroke(1.dp, BrandBorder),
                         shape = RoundedCornerShape(16.dp),
                         modifier = Modifier
                             .weight(1.0f)
@@ -788,13 +797,13 @@ fun DashboardScreen(
                                 modifier = Modifier
                                     .size(36.dp)
                                     .clip(RoundedCornerShape(8.dp))
-                                    .background(BrightCyan.copy(alpha = 0.1f)),
+                                    .background(BrandPrimary.copy(alpha = 0.1f)),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Analytics,
                                     contentDescription = "AI Analiz",
-                                    tint = BrightCyan,
+                                    tint = BrandPrimary,
                                     modifier = Modifier.size(18.dp)
                                 )
                             }
@@ -817,8 +826,8 @@ fun DashboardScreen(
 
                     // 7/24 AI Öğretmen
                     Card(
-                        colors = CardDefaults.cardColors(containerColor = SlateBlueCard),
-                        border = BorderStroke(1.dp, DarkBorder),
+                        colors = CardDefaults.cardColors(containerColor = BrandSurface),
+                        border = BorderStroke(1.dp, BrandBorder),
                         shape = RoundedCornerShape(16.dp),
                         modifier = Modifier
                             .weight(1.0f)
@@ -832,13 +841,13 @@ fun DashboardScreen(
                                 modifier = Modifier
                                     .size(36.dp)
                                     .clip(RoundedCornerShape(8.dp))
-                                    .background(NeonPurple.copy(alpha = 0.1f)),
+                                    .background(BrandSecondary.copy(alpha = 0.1f)),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.QuestionAnswer,
                                     contentDescription = "AI Öğretmen",
-                                    tint = NeonPurple,
+                                    tint = BrandSecondary,
                                     modifier = Modifier.size(18.dp)
                                 )
                             }
@@ -864,8 +873,8 @@ fun DashboardScreen(
 
                 // Hata Kutusu (Yanlışlarım) Card
                 Card(
-                    colors = CardDefaults.cardColors(containerColor = SlateBlueCard),
-                    border = BorderStroke(1.dp, DarkBorder.copy(alpha = 0.8f)),
+                    colors = CardDefaults.cardColors(containerColor = BrandSurface),
+                    border = BorderStroke(1.dp, BrandBorder.copy(alpha = 0.8f)),
                     shape = RoundedCornerShape(16.dp),
                     modifier = Modifier
                         .fillMaxWidth()
@@ -955,7 +964,7 @@ fun DashboardScreen(
                             )
                             Text(
                                 text = "Hemen üstten bir anlık test başlatın!",
-                                color = BrightCyan,
+                                color = BrandPrimary,
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold,
                                 modifier = Modifier.padding(top = 4.dp)
@@ -968,8 +977,8 @@ fun DashboardScreen(
             // Historical Sınav Cards
             items(historyList) { history ->
                 Card(
-                    colors = CardDefaults.cardColors(containerColor = SlateBlueCard.copy(alpha = 0.7f)),
-                    border = BorderStroke(1.dp, DarkBorder.copy(alpha = 0.5f)),
+                    colors = CardDefaults.cardColors(containerColor = BrandSurface.copy(alpha = 0.7f)),
+                    border = BorderStroke(1.dp, BrandBorder.copy(alpha = 0.5f)),
                     shape = RoundedCornerShape(12.dp),
                     modifier = Modifier
                         .fillMaxWidth()
@@ -996,12 +1005,12 @@ fun DashboardScreen(
                                 Box(
                                     modifier = Modifier
                                         .clip(RoundedCornerShape(4.dp))
-                                        .background(if (history.examType == "Instant") BrightCyan.copy(alpha = 0.15f) else NeonPurple.copy(alpha = 0.15f))
+                                        .background(if (history.examType == "Instant") BrandPrimary.copy(alpha = 0.15f) else BrandSecondary.copy(alpha = 0.15f))
                                         .padding(horizontal = 6.dp, vertical = 2.dp)
                                 ) {
                                     Text(
                                         text = if (history.examType == "Instant") "Konu Testi" else "Deneme Sınavı",
-                                        color = if (history.examType == "Instant") BrightCyan else NeonPurple,
+                                        color = if (history.examType == "Instant") BrandPrimary else BrandSecondary,
                                         fontSize = 9.sp,
                                         fontWeight = FontWeight.Bold
                                     )
@@ -1068,7 +1077,7 @@ fun TestConfigScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(MidnightDark)
+            .background(BrandBackground)
             .windowInsetsPadding(WindowInsets.safeDrawing)
     ) {
         Column(
@@ -1085,7 +1094,7 @@ fun TestConfigScreen(
                     onClick = onBack,
                     modifier = Modifier
                         .clip(CircleShape)
-                        .background(SlateBlueCard)
+                        .background(BrandSurface)
                 ) {
                     Icon(
                         imageVector = Icons.Default.ArrowBack,
@@ -1106,15 +1115,15 @@ fun TestConfigScreen(
 
             // Lesson Selection Card
             Card(
-                colors = CardDefaults.cardColors(containerColor = SlateBlueCard),
-                border = BorderStroke(1.dp, DarkBorder),
+                colors = CardDefaults.cardColors(containerColor = BrandSurface),
+                border = BorderStroke(1.dp, BrandBorder),
                 shape = RoundedCornerShape(16.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
                         text = "1. Ders Seçimi",
-                        color = BrightCyan,
+                        color = BrandPrimary,
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.padding(bottom = 12.dp)
@@ -1126,10 +1135,10 @@ fun TestConfigScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clip(RoundedCornerShape(8.dp))
-                                .background(if (isSelected) DeepViolet.copy(alpha = 0.3f) else Color.Transparent)
+                                .background(if (isSelected) BrandPrimaryLight.copy(alpha = 0.3f) else Color.Transparent)
                                 .border(
                                     1.dp,
-                                    if (isSelected) BrightCyan else Color.Transparent,
+                                    if (isSelected) BrandPrimary else Color.Transparent,
                                     RoundedCornerShape(8.dp)
                                 )
                                 .clickable { selectedLesson = lesson }
@@ -1147,7 +1156,7 @@ fun TestConfigScreen(
                                 Icon(
                                     imageVector = Icons.Default.CheckCircle,
                                     contentDescription = "Seçildi",
-                                    tint = BrightCyan,
+                                    tint = BrandPrimary,
                                     modifier = Modifier.size(18.dp)
                                 )
                             }
@@ -1161,15 +1170,15 @@ fun TestConfigScreen(
 
             // Topic Selector
             Card(
-                colors = CardDefaults.cardColors(containerColor = SlateBlueCard),
-                border = BorderStroke(1.dp, DarkBorder),
+                colors = CardDefaults.cardColors(containerColor = BrandSurface),
+                border = BorderStroke(1.dp, BrandBorder),
                 shape = RoundedCornerShape(16.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
                         text = "2. Çalışmak İstediğiniz Konu",
-                        color = BrightCyan,
+                        color = BrandPrimary,
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.padding(bottom = 12.dp)
@@ -1188,10 +1197,10 @@ fun TestConfigScreen(
                                 modifier = Modifier
                                     .weight(1f)
                                     .clip(RoundedCornerShape(10.dp))
-                                    .background(if (isSelected) DeepViolet else Color(0xFF131A30))
+                                    .background(if (isSelected) BrandPrimaryLight else Color(0xFF131A30))
                                     .border(
                                         1.dp,
-                                        if (isSelected) BrightCyan else DarkBorder,
+                                        if (isSelected) BrandPrimary else BrandBorder,
                                         RoundedCornerShape(10.dp)
                                     )
                                     .clickable { selectedTopic = topic }
@@ -1221,10 +1230,10 @@ fun TestConfigScreen(
                                 modifier = Modifier
                                     .weight(1f)
                                     .clip(RoundedCornerShape(10.dp))
-                                    .background(if (isSelected) DeepViolet else Color(0xFF131A30))
+                                    .background(if (isSelected) BrandPrimaryLight else Color(0xFF131A30))
                                     .border(
                                         1.dp,
-                                        if (isSelected) BrightCyan else DarkBorder,
+                                        if (isSelected) BrandPrimary else BrandBorder,
                                         RoundedCornerShape(10.dp)
                                     )
                                     .clickable { selectedTopic = topic }
@@ -1248,15 +1257,15 @@ fun TestConfigScreen(
 
             // Question Count Selector
             Card(
-                colors = CardDefaults.cardColors(containerColor = SlateBlueCard),
-                border = BorderStroke(1.dp, DarkBorder),
+                colors = CardDefaults.cardColors(containerColor = BrandSurface),
+                border = BorderStroke(1.dp, BrandBorder),
                 shape = RoundedCornerShape(16.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
                         text = "3. Soru Sayısı",
-                        color = BrightCyan,
+                        color = BrandPrimary,
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.padding(bottom = 12.dp)
@@ -1272,10 +1281,10 @@ fun TestConfigScreen(
                                 modifier = Modifier
                                     .weight(1f)
                                     .clip(RoundedCornerShape(10.dp))
-                                    .background(if (isSelected) DeepViolet else Color(0xFF131A30))
+                                    .background(if (isSelected) BrandPrimaryLight else Color(0xFF131A30))
                                     .border(
                                         1.dp,
-                                        if (isSelected) BrightCyan else DarkBorder,
+                                        if (isSelected) BrandPrimary else BrandBorder,
                                         RoundedCornerShape(10.dp)
                                     )
                                     .clickable { selectedCount = count }
@@ -1298,7 +1307,7 @@ fun TestConfigScreen(
 
             Button(
                 onClick = { onStartTest(selectedLesson, selectedTopic, selectedCount) },
-                colors = ButtonDefaults.buttonColors(containerColor = BrightCyan, contentColor = MidnightDark),
+                colors = ButtonDefaults.buttonColors(containerColor = BrandPrimary, contentColor = BrandBackground),
                 shape = RoundedCornerShape(12.dp),
                 modifier = Modifier
                     .fillMaxWidth()
@@ -1338,13 +1347,13 @@ fun ActiveExamScreen(
     val timerColor = when {
         state.timeRemainingSeconds < 60 -> WrongRed
         state.timeRemainingSeconds < 180 -> WarningOrange
-        else -> BrightCyan
+        else -> BrandPrimary
     }
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(MidnightDark)
+            .background(BrandBackground)
             .windowInsetsPadding(WindowInsets.safeDrawing)
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -1382,7 +1391,7 @@ fun ActiveExamScreen(
                         onClick = { onToggleFlag(qIndex) },
                         modifier = Modifier
                             .clip(CircleShape)
-                            .background(if (isFlagged) WarningOrange.copy(alpha = 0.15f) else SlateBlueCard)
+                            .background(if (isFlagged) WarningOrange.copy(alpha = 0.15f) else BrandSurface)
                     ) {
                         Icon(
                             imageVector = if (isFlagged) Icons.Default.Bookmark else Icons.Outlined.BookmarkBorder,
@@ -1438,12 +1447,12 @@ fun ActiveExamScreen(
                 Box(
                     modifier = Modifier
                         .clip(RoundedCornerShape(6.dp))
-                        .background(BrightCyan.copy(alpha = 0.12f))
+                        .background(BrandPrimary.copy(alpha = 0.12f))
                         .padding(horizontal = 8.dp, vertical = 4.dp)
                 ) {
                     Text(
                         text = "${currentQuestion.lesson} • ${currentQuestion.topic}",
-                        color = BrightCyan,
+                        color = BrandPrimary,
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -1473,11 +1482,11 @@ fun ActiveExamScreen(
                     val isSelected = selectedOption == label
                     Card(
                         colors = CardDefaults.cardColors(
-                            containerColor = if (isSelected) DeepViolet.copy(alpha = 0.3f) else SlateBlueCard
+                            containerColor = if (isSelected) BrandPrimaryLight.copy(alpha = 0.3f) else BrandSurface
                         ),
                         border = BorderStroke(
                             width = 1.dp,
-                            color = if (isSelected) BrightCyan else DarkBorder
+                            color = if (isSelected) BrandPrimary else BrandBorder
                         ),
                         shape = RoundedCornerShape(12.dp),
                         modifier = Modifier
@@ -1494,12 +1503,12 @@ fun ActiveExamScreen(
                                 modifier = Modifier
                                     .size(32.dp)
                                     .clip(CircleShape)
-                                    .background(if (isSelected) BrightCyan else Color(0xFF131A30)),
+                                    .background(if (isSelected) BrandPrimary else Color(0xFF131A30)),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Text(
                                     text = label,
-                                    color = if (isSelected) MidnightDark else TextLight,
+                                    color = if (isSelected) BrandBackground else TextLight,
                                     fontSize = 14.sp,
                                     fontWeight = FontWeight.Bold
                                 )
@@ -1520,7 +1529,7 @@ fun ActiveExamScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(Color(0xFF0C101E))
-                    .border(BorderStroke(1.dp, DarkBorder.copy(alpha = 0.5f)))
+                    .border(BorderStroke(1.dp, BrandBorder.copy(alpha = 0.5f)))
                     .padding(vertical = 12.dp, horizontal = 16.dp)
             ) {
                 Text(
@@ -1551,10 +1560,10 @@ fun ActiveExamScreen(
                             horizontalAlignment = Alignment.CenterHorizontally,
                             modifier = Modifier
                                 .clip(RoundedCornerShape(8.dp))
-                                .background(if (isCurr) DeepViolet.copy(alpha = 0.4f) else Color.Transparent)
+                                .background(if (isCurr) BrandPrimaryLight.copy(alpha = 0.4f) else Color.Transparent)
                                 .border(
                                     1.dp,
-                                    if (isCurr) BrightCyan else if (isFlag) WarningOrange else DarkBorder,
+                                    if (isCurr) BrandPrimary else if (isFlag) WarningOrange else BrandBorder,
                                     RoundedCornerShape(8.dp)
                                 )
                                 .clickable { onSetQuestionIndex(i) }
@@ -1562,7 +1571,7 @@ fun ActiveExamScreen(
                         ) {
                             Text(
                                 text = "${i + 1}",
-                                color = if (isCurr) BrightCyan else Color.White,
+                                color = if (isCurr) BrandPrimary else Color.White,
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.Bold
                             )
@@ -1572,14 +1581,14 @@ fun ActiveExamScreen(
                                     .size(16.dp)
                                     .clip(CircleShape)
                                     .background(
-                                        if (hasAnswered) BrightCyan else if (isFlag) WarningOrange.copy(alpha = 0.2f) else DarkBorder.copy(alpha = 0.3f)
+                                        if (hasAnswered) BrandPrimary else if (isFlag) WarningOrange.copy(alpha = 0.2f) else BrandBorder.copy(alpha = 0.3f)
                                     ),
                                 contentAlignment = Alignment.Center
                             ) {
                                 if (hasAnswered) {
                                     Text(
                                         text = ans,
-                                        color = MidnightDark,
+                                        color = BrandBackground,
                                         fontSize = 9.sp,
                                         fontWeight = FontWeight.Bold
                                     )
@@ -1647,7 +1656,7 @@ fun ExamResultScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(MidnightDark)
+            .background(BrandBackground)
             .windowInsetsPadding(WindowInsets.safeDrawing)
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -1670,7 +1679,7 @@ fun ExamResultScreen(
                     onClick = onDashboard,
                     modifier = Modifier
                         .clip(CircleShape)
-                        .background(SlateBlueCard)
+                        .background(BrandSurface)
                 ) {
                     Icon(imageVector = Icons.Default.Close, contentDescription = "Kapat", tint = Color.White)
                 }
@@ -1684,8 +1693,8 @@ fun ExamResultScreen(
                 // Ring Stats Row
                 item {
                     Card(
-                        colors = CardDefaults.cardColors(containerColor = SlateBlueCard),
-                        border = BorderStroke(1.dp, DarkBorder),
+                        colors = CardDefaults.cardColors(containerColor = BrandSurface),
+                        border = BorderStroke(1.dp, BrandBorder),
                         shape = RoundedCornerShape(16.dp),
                         modifier = Modifier.fillMaxWidth()
                     ) {
@@ -1728,7 +1737,7 @@ fun ExamResultScreen(
                             }
 
                             Divider(
-                                color = DarkBorder.copy(alpha = 0.5f),
+                                color = BrandBorder.copy(alpha = 0.5f),
                                 modifier = Modifier.padding(vertical = 16.dp)
                             )
 
@@ -1779,7 +1788,7 @@ fun ExamResultScreen(
                     }
 
                     Card(
-                        colors = CardDefaults.cardColors(containerColor = SlateBlueCard.copy(alpha = 0.6f)),
+                        colors = CardDefaults.cardColors(containerColor = BrandSurface.copy(alpha = 0.6f)),
                         border = BorderStroke(1.dp, statusColor.copy(alpha = 0.3f)),
                         shape = RoundedCornerShape(12.dp),
                         modifier = Modifier
@@ -1818,7 +1827,7 @@ fun ExamResultScreen(
                                 Box(
                                     modifier = Modifier
                                         .clip(RoundedCornerShape(4.dp))
-                                        .background(DarkBorder.copy(alpha = 0.3f))
+                                        .background(BrandBorder.copy(alpha = 0.3f))
                                         .padding(horizontal = 6.dp, vertical = 2.dp)
                                 ) {
                                     Text(
@@ -1851,7 +1860,7 @@ fun ExamResultScreen(
                             Button(
                                 onClick = { onExplainQuestion(q) },
                                 colors = ButtonDefaults.buttonColors(
-                                    containerColor = if (isCorrect) DeepViolet.copy(alpha = 0.6f) else DeepViolet,
+                                    containerColor = if (isCorrect) BrandPrimaryLight.copy(alpha = 0.6f) else BrandPrimaryLight,
                                     contentColor = Color.White
                                 ),
                                 shape = RoundedCornerShape(8.dp),
@@ -1863,7 +1872,7 @@ fun ExamResultScreen(
                                     Icon(
                                         imageVector = Icons.Default.AutoAwesome,
                                         contentDescription = "AI Çözüm Anlatımı",
-                                        tint = BrightCyan,
+                                        tint = BrandPrimary,
                                         modifier = Modifier.size(16.dp)
                                     )
                                     Spacer(modifier = Modifier.width(6.dp))
@@ -1896,7 +1905,7 @@ fun AIAnalysisScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(MidnightDark)
+            .background(BrandBackground)
             .windowInsetsPadding(WindowInsets.safeDrawing)
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -1912,7 +1921,7 @@ fun AIAnalysisScreen(
                     onClick = onBack,
                     modifier = Modifier
                         .clip(CircleShape)
-                        .background(SlateBlueCard)
+                        .background(BrandSurface)
                 ) {
                     Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Geri", tint = TextLight)
                 }
@@ -1931,7 +1940,7 @@ fun AIAnalysisScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        CircularProgressIndicator(color = BrightCyan)
+                        CircularProgressIndicator(color = BrandPrimary)
                         Spacer(modifier = Modifier.height(16.dp))
                         Text(
                             text = "Yapay Zeka Karne Verilerinizi Analiz Ediyor...",
@@ -1955,8 +1964,8 @@ fun AIAnalysisScreen(
                 ) {
                     // Header Card
                     Card(
-                        colors = CardDefaults.cardColors(containerColor = SlateBlueCard),
-                        border = BorderStroke(1.dp, DarkBorder),
+                        colors = CardDefaults.cardColors(containerColor = BrandSurface),
+                        border = BorderStroke(1.dp, BrandBorder),
                         shape = RoundedCornerShape(16.dp),
                         modifier = Modifier.fillMaxWidth()
                     ) {
@@ -1968,13 +1977,13 @@ fun AIAnalysisScreen(
                                 modifier = Modifier
                                     .size(44.dp)
                                     .clip(RoundedCornerShape(10.dp))
-                                    .background(BrightCyan.copy(alpha = 0.15f)),
+                                    .background(BrandPrimary.copy(alpha = 0.15f)),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.AutoAwesome,
                                     contentDescription = "Analiz",
-                                    tint = BrightCyan,
+                                    tint = BrandPrimary,
                                     modifier = Modifier.size(24.dp)
                                 )
                             }
@@ -1999,8 +2008,8 @@ fun AIAnalysisScreen(
 
                     // Main Report Card with Markdown formatted text
                     Card(
-                        colors = CardDefaults.cardColors(containerColor = SlateBlueCard.copy(alpha = 0.5f)),
-                        border = BorderStroke(1.dp, DarkBorder.copy(alpha = 0.5f)),
+                        colors = CardDefaults.cardColors(containerColor = BrandSurface.copy(alpha = 0.5f)),
+                        border = BorderStroke(1.dp, BrandBorder.copy(alpha = 0.5f)),
                         shape = RoundedCornerShape(16.dp),
                         modifier = Modifier.fillMaxWidth()
                     ) {
@@ -2045,7 +2054,7 @@ fun MistakeBoxScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(MidnightDark)
+            .background(BrandBackground)
             .windowInsetsPadding(WindowInsets.safeDrawing)
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -2061,7 +2070,7 @@ fun MistakeBoxScreen(
                     onClick = onBack,
                     modifier = Modifier
                         .clip(CircleShape)
-                        .background(SlateBlueCard)
+                        .background(BrandSurface)
                 ) {
                     Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Geri", tint = TextLight)
                 }
@@ -2087,10 +2096,10 @@ fun MistakeBoxScreen(
                     Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(8.dp))
-                            .background(if (isSelected) DeepViolet else SlateBlueCard)
+                            .background(if (isSelected) BrandPrimaryLight else BrandSurface)
                             .border(
                                 1.dp,
-                                if (isSelected) BrightCyan else DarkBorder,
+                                if (isSelected) BrandPrimary else BrandBorder,
                                 RoundedCornerShape(8.dp)
                             )
                             .clickable { selectedLessonFilter = lesson }
@@ -2145,8 +2154,8 @@ fun MistakeBoxScreen(
                 ) {
                     items(filteredMistakes) { q ->
                         Card(
-                            colors = CardDefaults.cardColors(containerColor = SlateBlueCard.copy(alpha = 0.6f)),
-                            border = BorderStroke(1.dp, DarkBorder.copy(alpha = 0.5f)),
+                            colors = CardDefaults.cardColors(containerColor = BrandSurface.copy(alpha = 0.6f)),
+                            border = BorderStroke(1.dp, BrandBorder.copy(alpha = 0.5f)),
                             shape = RoundedCornerShape(12.dp),
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -2161,12 +2170,12 @@ fun MistakeBoxScreen(
                                     Box(
                                         modifier = Modifier
                                             .clip(RoundedCornerShape(6.dp))
-                                            .background(BrightCyan.copy(alpha = 0.15f))
+                                            .background(BrandPrimary.copy(alpha = 0.15f))
                                             .padding(horizontal = 8.dp, vertical = 4.dp)
                                     ) {
                                         Text(
                                             text = "${q.lesson} • ${q.topic}",
-                                            color = BrightCyan,
+                                            color = BrandPrimary,
                                             fontSize = 10.sp,
                                             fontWeight = FontWeight.Bold
                                         )
@@ -2210,19 +2219,19 @@ fun MistakeBoxScreen(
                                         .padding(8.dp)
                                 ) {
                                     Row(modifier = Modifier.padding(vertical = 2.dp)) {
-                                        Text(text = "A) ", color = BrightCyan, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                                        Text(text = "A) ", color = BrandPrimary, fontWeight = FontWeight.Bold, fontSize = 12.sp)
                                         Text(text = q.optionA, color = TextLight, fontSize = 12.sp)
                                     }
                                     Row(modifier = Modifier.padding(vertical = 2.dp)) {
-                                        Text(text = "B) ", color = BrightCyan, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                                        Text(text = "B) ", color = BrandPrimary, fontWeight = FontWeight.Bold, fontSize = 12.sp)
                                         Text(text = q.optionB, color = TextLight, fontSize = 12.sp)
                                     }
                                     Row(modifier = Modifier.padding(vertical = 2.dp)) {
-                                        Text(text = "C) ", color = BrightCyan, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                                        Text(text = "C) ", color = BrandPrimary, fontWeight = FontWeight.Bold, fontSize = 12.sp)
                                         Text(text = q.optionC, color = TextLight, fontSize = 12.sp)
                                     }
                                     Row(modifier = Modifier.padding(vertical = 2.dp)) {
-                                        Text(text = "D) ", color = BrightCyan, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                                        Text(text = "D) ", color = BrandPrimary, fontWeight = FontWeight.Bold, fontSize = 12.sp)
                                         Text(text = q.optionD, color = TextLight, fontSize = 12.sp)
                                     }
                                 }
@@ -2258,12 +2267,12 @@ fun MistakeBoxScreen(
                                 // Explanations Trigger
                                 Button(
                                     onClick = { onExplainMistake(q) },
-                                    colors = ButtonDefaults.buttonColors(containerColor = DeepViolet, contentColor = Color.White),
+                                    colors = ButtonDefaults.buttonColors(containerColor = BrandPrimaryLight, contentColor = Color.White),
                                     shape = RoundedCornerShape(8.dp),
                                     modifier = Modifier.fillMaxWidth()
                                 ) {
                                     Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Icon(imageVector = Icons.Default.AutoAwesome, contentDescription = "AI Öğretmen Açıklasın", tint = BrightCyan, modifier = Modifier.size(16.dp))
+                                        Icon(imageVector = Icons.Default.AutoAwesome, contentDescription = "AI Öğretmen Açıklasın", tint = BrandPrimary, modifier = Modifier.size(16.dp))
                                         Spacer(modifier = Modifier.width(6.dp))
                                         Text("AI Adım Adım Açıklasın (Hata Analizi)", fontSize = 11.sp, fontWeight = FontWeight.Bold)
                                     }
@@ -2310,7 +2319,7 @@ fun AITeacherScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(MidnightDark)
+            .background(BrandBackground)
             .windowInsetsPadding(WindowInsets.safeDrawing)
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -2328,7 +2337,7 @@ fun AITeacherScreen(
                         onClick = onBack,
                         modifier = Modifier
                             .clip(CircleShape)
-                            .background(SlateBlueCard)
+                            .background(BrandSurface)
                     ) {
                         Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Geri", tint = TextLight)
                     }
@@ -2383,7 +2392,7 @@ fun AITeacherScreen(
                                 modifier = Modifier
                                     .size(32.dp)
                                     .clip(CircleShape)
-                                    .background(NeonPurple),
+                                    .background(BrandSecondary),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(imageVector = Icons.Default.Face, contentDescription = "AI", tint = Color.White, modifier = Modifier.size(18.dp))
@@ -2393,7 +2402,7 @@ fun AITeacherScreen(
 
                         Card(
                             colors = CardDefaults.cardColors(
-                                containerColor = if (isUser) BrightCyan else SlateBlueCard
+                                containerColor = if (isUser) BrandPrimary else BrandSurface
                             ),
                             shape = RoundedCornerShape(
                                 topStart = 16.dp,
@@ -2401,14 +2410,14 @@ fun AITeacherScreen(
                                 bottomStart = if (isUser) 16.dp else 4.dp,
                                 bottomEnd = if (isUser) 4.dp else 16.dp
                             ),
-                            border = if (isUser) null else BorderStroke(1.dp, DarkBorder),
+                            border = if (isUser) null else BorderStroke(1.dp, BrandBorder),
                             modifier = Modifier.widthIn(max = 280.dp)
                         ) {
                             Column(modifier = Modifier.padding(12.dp)) {
                                 if (isUser) {
                                     Text(
                                         text = msg.text,
-                                        color = MidnightDark,
+                                        color = BrandBackground,
                                         fontSize = 14.sp,
                                         lineHeight = 20.sp
                                     )
@@ -2424,7 +2433,7 @@ fun AITeacherScreen(
                                 modifier = Modifier
                                     .size(32.dp)
                                     .clip(CircleShape)
-                                    .background(DeepViolet),
+                                    .background(BrandPrimaryLight),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(imageVector = Icons.Default.Person, contentDescription = "Ben", tint = Color.White, modifier = Modifier.size(18.dp))
@@ -2446,19 +2455,19 @@ fun AITeacherScreen(
                                 modifier = Modifier
                                     .size(32.dp)
                                     .clip(CircleShape)
-                                    .background(NeonPurple),
+                                    .background(BrandSecondary),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(imageVector = Icons.Default.Face, contentDescription = "AI", tint = Color.White, modifier = Modifier.size(18.dp))
                             }
                             Spacer(modifier = Modifier.width(8.dp))
                             Card(
-                                colors = CardDefaults.cardColors(containerColor = SlateBlueCard),
-                                border = BorderStroke(1.dp, DarkBorder),
+                                colors = CardDefaults.cardColors(containerColor = BrandSurface),
+                                border = BorderStroke(1.dp, BrandBorder),
                                 shape = RoundedCornerShape(12.dp)
                             ) {
                                 Row(modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-                                    CircularProgressIndicator(color = BrightCyan, modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
+                                    CircularProgressIndicator(color = BrandPrimary, modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
                                     Spacer(modifier = Modifier.width(10.dp))
                                     Text(text = "Yapay Zeka Öğretmeni yazıyor...", color = TextMuted, fontSize = 12.sp)
                                 }
@@ -2480,8 +2489,8 @@ fun AITeacherScreen(
                     Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(8.dp))
-                            .background(SlateBlueCard)
-                            .border(1.dp, DarkBorder, RoundedCornerShape(8.dp))
+                            .background(BrandSurface)
+                            .border(1.dp, BrandBorder, RoundedCornerShape(8.dp))
                             .clickable { onSendMessage(chip) }
                             .padding(horizontal = 12.dp, vertical = 6.dp)
                     ) {
@@ -2494,8 +2503,8 @@ fun AITeacherScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(SlateBlueCard)
-                    .border(BorderStroke(1.dp, DarkBorder.copy(alpha = 0.5f)))
+                    .background(BrandSurface)
+                    .border(BorderStroke(1.dp, BrandBorder.copy(alpha = 0.5f)))
                     .padding(14.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -2504,8 +2513,8 @@ fun AITeacherScreen(
                     onValueChange = { textState = it },
                     placeholder = { Text("AI Öğretmene sor...", color = TextMuted) },
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = BrightCyan,
-                        unfocusedBorderColor = DarkBorder,
+                        focusedBorderColor = BrandPrimary,
+                        unfocusedBorderColor = BrandBorder,
                         focusedTextColor = TextLight,
                         unfocusedTextColor = TextLight
                     ),
@@ -2526,12 +2535,12 @@ fun AITeacherScreen(
                     modifier = Modifier
                         .size(48.dp)
                         .clip(CircleShape)
-                        .background(if (textState.trim().isNotEmpty()) BrightCyan else DarkBorder)
+                        .background(if (textState.trim().isNotEmpty()) BrandPrimary else BrandBorder)
                 ) {
                     Icon(
                         imageVector = Icons.Default.Send,
                         contentDescription = "Gönder",
-                        tint = if (textState.trim().isNotEmpty()) MidnightDark else TextMuted
+                        tint = if (textState.trim().isNotEmpty()) BrandBackground else TextMuted
                     )
                 }
             }
@@ -2549,8 +2558,8 @@ fun ExplanationDialog(
     if (explanationText != null || isLoading) {
         Dialog(onDismissRequest = onDismiss) {
             Card(
-                colors = CardDefaults.cardColors(containerColor = SlateBlueCard),
-                border = BorderStroke(1.dp, BrightCyan.copy(alpha = 0.5f)),
+                colors = CardDefaults.cardColors(containerColor = BrandSurface),
+                border = BorderStroke(1.dp, BrandPrimary.copy(alpha = 0.5f)),
                 shape = RoundedCornerShape(16.dp),
                 modifier = Modifier
                     .fillMaxWidth()
@@ -2568,7 +2577,7 @@ fun ExplanationDialog(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(imageVector = Icons.Default.AutoAwesome, contentDescription = "AI Çözüm", tint = BrightCyan, modifier = Modifier.size(20.dp))
+                            Icon(imageVector = Icons.Default.AutoAwesome, contentDescription = "AI Çözüm", tint = BrandPrimary, modifier = Modifier.size(20.dp))
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(text = "Yapay Zeka Çözüm Analizi", color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.Bold)
                         }
@@ -2586,7 +2595,7 @@ fun ExplanationDialog(
                             contentAlignment = Alignment.Center
                         ) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                CircularProgressIndicator(color = BrightCyan)
+                                CircularProgressIndicator(color = BrandPrimary)
                                 Spacer(modifier = Modifier.height(14.dp))
                                 Text(text = "AI Adım Adım Çözümü Çıkarıyor...", color = TextLight, fontSize = 13.sp)
                             }
@@ -2614,7 +2623,7 @@ fun ExplanationDialog(
                     ) {
                         Button(
                             onClick = onDismiss,
-                            colors = ButtonDefaults.buttonColors(containerColor = BrightCyan, contentColor = MidnightDark),
+                            colors = ButtonDefaults.buttonColors(containerColor = BrandPrimary, contentColor = BrandBackground),
                             shape = RoundedCornerShape(8.dp)
                         ) {
                             Text(text = "Anladım", fontWeight = FontWeight.Bold, fontSize = 12.sp)
@@ -2625,3 +2634,4 @@ fun ExplanationDialog(
         }
     }
 }
+

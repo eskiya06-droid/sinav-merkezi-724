@@ -14,22 +14,22 @@ import androidx.compose.ui.graphics.Color
 
 private val CustomLightColorScheme =
   lightColorScheme(
-    primary = BrightCyan,
-    secondary = DeepViolet,
-    tertiary = NeonPurple,
-    background = MidnightDark,
-    surface = SlateBlueCard,
+    primary = BrandPrimary,
+    secondary = BrandSecondary,
+    tertiary = BrandPrimaryLight,
+    background = BrandBackground,
+    surface = BrandSurface,
     onPrimary = Color.White,
-    onSecondary = TextLight,
+    onSecondary = Color.White,
     onBackground = TextLight,
     onSurface = TextLight,
-    outline = DarkBorder
+    outline = BrandBorder
   )
 
 @Composable
 fun MyApplicationTheme(
   darkTheme: Boolean = isSystemInDarkTheme(),
-  dynamicColor: Boolean = false, // Disable dynamic colors to preserve branded Polish theme
+  dynamicColor: Boolean = false, // Disable dynamic colors to preserve branding
   content: @Composable () -> Unit,
 ) {
   val colorScheme = CustomLightColorScheme

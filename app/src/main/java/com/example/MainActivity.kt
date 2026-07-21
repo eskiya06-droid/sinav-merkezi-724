@@ -172,7 +172,7 @@ fun MainContent(viewModel: ExamViewModel) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(MidnightDark)
+                .background(BrandBackground)
                 .padding(innerPadding)
         ) {
             when (currentScreen) {
@@ -256,3 +256,4 @@ fun MainContent(viewModel: ExamViewModel) {
         }
     }
 }
+

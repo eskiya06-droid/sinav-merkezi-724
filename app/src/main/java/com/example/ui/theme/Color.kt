@@ -2,26 +2,18 @@ package com.example.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val Purple80 = Color(0xFFD0BCFF)
-val PurpleGrey80 = Color(0xFFCCC2DC)
-val Pink80 = Color(0xFFEFB8C8)
+// --- Kitap 7/24 Brand Colors ---
+val BrandPrimary = Color(0xFF009FDF)       // Logo Blue
+val BrandSecondary = Color(0xFFF26522)     // Logo Orange
+val BrandBackground = Color(0xFFF8F9FA)    // Light clean background
+val BrandSurface = Color(0xFFFFFFFF)       // Pure White Cards
+val BrandBorder = Color(0xFFE0E0E0)        // Soft grey border
 
-val Purple40 = Color(0xFF6650a4)
-val PurpleGrey40 = Color(0xFF625b71)
-val Pink40 = Color(0xFF7D5260)
-
-// --- Professional Polish M3 Light Theme Colors ---
-val MidnightDark = Color(0xFFFDF7FF)       // Light Background
-val SlateBlueCard = Color(0xFFFFFFFF)      // Pure White Cards
-val DarkBorder = Color(0xFFCAC4D0)         // Soft border color
-
-val BrightCyan = Color(0xFF6750A4)         // Primary Purple accent
-val DeepViolet = Color(0xFFEADDFF)         // Light Purple highlight
-val NeonPurple = Color(0xFFE8DEF8)         // Lavender Accent
+val BrandPrimaryLight = Color(0xFFE1F5FE)  // Very light blue for subtle backgrounds
+val BrandSecondaryLight = Color(0xFFFBE9E7) // Very light orange for subtle highlights
 
 val CorrectGreen = Color(0xFF4CAF50)       // M3 Success Green
 val WrongRed = Color(0xFFB3261E)           // M3 Error Red
 val WarningOrange = Color(0xFFF57C00)      // Accent Orange
-val TextLight = Color(0xFF1D1B20)          // Dark legible text
-val TextMuted = Color(0xFF49454F)          // Medium grey secondary text
-
+val TextLight = Color(0xFF212529)          // Dark legible text
+val TextMuted = Color(0xFF6C757D)          // Medium grey secondary text
