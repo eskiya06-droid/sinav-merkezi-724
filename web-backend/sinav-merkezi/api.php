@@ -111,8 +111,12 @@ curl_setopt($ch, CURLOPT_HTTPHEADER, [
     "Accept: application/json"
 ]);
 
-// Set timeout to 15 seconds to fail fast instead of hanging the UI
-curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+// Set dynamic timeout: Vision tasks need more time (60s), Text tasks fail faster (25s)
+if ($action === 'vision') {
+    curl_setopt($ch, CURLOPT_TIMEOUT, 60);
+} else {
+    curl_setopt($ch, CURLOPT_TIMEOUT, 25);
+}
 
 $response = curl_exec($ch);
 $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
