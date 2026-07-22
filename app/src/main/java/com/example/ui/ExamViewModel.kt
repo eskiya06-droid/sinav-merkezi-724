@@ -122,19 +122,32 @@ class ExamViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     // --- Onboarding / Profile ---
-    fun registerUser(username: String, targetExam: String, field: String) {
+    fun registerUser(username: String, identifier: String, passwordHash: String, targetExam: String, field: String) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.updateProfile(
-                UserProfile(username = username, targetExam = targetExam, field = field)
+                UserProfile(username = username, identifier = identifier, passwordHash = passwordHash, targetExam = targetExam, field = field)
             )
             _currentScreen.value = AppScreen.DASHBOARD
         }
     }
 
-    fun updateProfile(username: String, targetExam: String, field: String) {
+    fun loginUser(identifier: String, passwordHash: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            var profile = repository.getProfile()
+            if (profile != null) {
+                _currentScreen.value = AppScreen.DASHBOARD
+            } else {
+                profile = UserProfile(username = "Öğrenci", identifier = identifier, passwordHash = passwordHash, targetExam = "YKS (TYT-AYT)", field = "Sayısal")
+                repository.updateProfile(profile)
+                _currentScreen.value = AppScreen.DASHBOARD
+            }
+        }
+    }
+
+    fun updateProfile(username: String, identifier: String, passwordHash: String, targetExam: String, field: String) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.updateProfile(
-                UserProfile(username = username, targetExam = targetExam, field = field)
+                UserProfile(username = username, identifier = identifier, passwordHash = passwordHash, targetExam = targetExam, field = field)
             )
         }
     }
@@ -151,7 +164,7 @@ class ExamViewModel(application: Application) : AndroidViewModel(application) {
     fun startInstantTest(lesson: String, topic: String, count: Int) {
         viewModelScope.launch {
             _isGeneratingQuestions.value = true
-            val profile = repository.getProfile() ?: UserProfile(username = "Öğrenci", targetExam = "TYT", field = "Sayısal")
+            val profile = repository.getProfile() ?: UserProfile(username = "Öğrenci", identifier = "demo@demo.com", passwordHash = "123", targetExam = "TYT", field = "Sayısal")
             
             try {
                 val questions = geminiService.generateQuestions(
@@ -183,7 +196,7 @@ class ExamViewModel(application: Application) : AndroidViewModel(application) {
     fun startFullMockExam() {
         viewModelScope.launch {
             _isGeneratingQuestions.value = true
-            val profile = repository.getProfile() ?: UserProfile(username = "Öğrenci", targetExam = "TYT", field = "Sayısal")
+            val profile = repository.getProfile() ?: UserProfile(username = "Öğrenci", identifier = "demo@demo.com", passwordHash = "123", targetExam = "TYT", field = "Sayısal")
             
             val examTitle = "${profile.targetExam} Pro Deneme Sınavı"
             val totalQuestionsCount = 10 // For smooth loading and best experience, a high-quality 10 question multi-subject mock
@@ -406,7 +419,7 @@ class ExamViewModel(application: Application) : AndroidViewModel(application) {
 
         viewModelScope.launch {
             try {
-                val profile = repository.getProfile() ?: UserProfile(username = "Öğrenci", targetExam = "TYT", field = "Sayısal")
+                val profile = repository.getProfile() ?: UserProfile(username = "Öğrenci", identifier = "demo@demo.com", passwordHash = "123", targetExam = "TYT", field = "Sayısal")
                 
                 // Map local chat message structure to Gemini API Content/Part structure
                 val apiHistory = _chatMessages.value.dropLast(1).map { msg ->

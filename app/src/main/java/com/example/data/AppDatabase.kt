@@ -10,6 +10,8 @@ import kotlinx.coroutines.flow.Flow
 data class UserProfile(
     @PrimaryKey val id: Int = 1,
     val username: String,
+    val identifier: String, // email, phone, or username
+    val passwordHash: String, // Mock password
     val targetExam: String, // "YKS (TYT-AYT)", "LGS", "KPSS", "DGS"
     val field: String,      // "Sayısal", "Sözel", "Eşit Ağırlık", "Genel"
     val createdTimestamp: Long = System.currentTimeMillis()
