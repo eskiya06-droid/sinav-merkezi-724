@@ -306,7 +306,7 @@ async function startAIExam() {
     const difficulty = document.getElementById("exam-difficulty").value;
     const btn = document.getElementById("start-exam-btn");
     
-    btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Sorular Üretiliyor...`;
+    btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Sınav Hazırlanıyor (Bu işlem 1-2 dakika sürebilir)...`;
     btn.disabled = true;
 
     try {
@@ -337,7 +337,7 @@ async function startAIExam() {
     } catch (err) {
         alert("Sınav oluşturulurken hata oluştu: " + err.message);
     } finally {
-        btn.innerHTML = `<i class="fa-solid fa-play"></i> Sınavı Başlat (5 Soru)`;
+        btn.innerHTML = `<i class="fa-solid fa-play"></i> Sınavı Başlat (30 Soru)`;
         btn.disabled = false;
     }
 }

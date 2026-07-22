@@ -31,7 +31,7 @@ if ($action === 'generate_exam') {
     $difficulty = $input['difficulty'] ?? 'Orta';
     
     $systemPrompt = "Sen uzman bir öğretmensin. Çıktın SADECE geçerli bir JSON objesi olmalıdır. Başka hiçbir açıklama yazma. JSON içinde ASLA gerçek satır atlama (Enter) kullanma, gerekirse \\n kullan. Trailing comma kullanma.";
-    $userPrompt = "Konu: $topic, Zorluk: $difficulty. Lütfen 5 adet çoktan seçmeli (A,B,C,D,E) soru üret. Format MUST be exactly:\n{\n\"questions\": [\n{\n\"question\": \"Soru metni...\",\n\"options\": [\"A şıkkı\",\"B\",\"C\",\"D\",\"E\"],\n\"correct_index\": 2\n}\n]\n}";
+    $userPrompt = "Konu: $topic, Zorluk: $difficulty. Lütfen 30 adet çoktan seçmeli (A,B,C,D,E) soru üret. Format MUST be exactly:\n{\n\"questions\": [\n{\n\"question\": \"Soru metni...\",\n\"options\": [\"A şıkkı\",\"B\",\"C\",\"D\",\"E\"],\n\"correct_index\": 2\n}\n]\n}";
     
     $payload = [
         "model" => "meta/llama-3.1-8b-instruct",
@@ -40,7 +40,7 @@ if ($action === 'generate_exam') {
             ["role" => "user", "content" => $userPrompt]
         ],
         "temperature" => 0.5,
-        "max_tokens" => 2000,
+        "max_tokens" => 8000,
         "response_format" => ["type" => "json_object"]
     ];
     
@@ -115,6 +115,8 @@ curl_setopt($ch, CURLOPT_HTTPHEADER, [
 // Set dynamic timeout: Vision tasks need more time (60s), Text tasks fail faster (25s)
 if ($action === 'vision') {
     curl_setopt($ch, CURLOPT_TIMEOUT, 60);
+} elseif ($action === 'generate_exam') {
+    curl_setopt($ch, CURLOPT_TIMEOUT, 150); // 30 questions can take up to 2 minutes
 } else {
     curl_setopt($ch, CURLOPT_TIMEOUT, 25);
 }
