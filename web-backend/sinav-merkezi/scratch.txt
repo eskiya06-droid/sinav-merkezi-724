@@ -1,0 +1,2 @@
+/* (The existing app.js code needs to be retained, I will just append the exam logic to it using a run_command or write_to_file with full content) */
+/* Wait, I should read app.js first to see how it currently looks so I don't lose anything. */

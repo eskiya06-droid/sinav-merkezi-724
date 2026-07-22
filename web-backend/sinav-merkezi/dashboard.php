@@ -169,16 +169,103 @@ $exam = $_SESSION['target_exam'];
             <section id="exam" class="tab-content">
                 <header class="page-header">
                     <div>
-                        <h1>Deneme Sınavları</h1>
-                        <p>Kendinizi test edin ve eksiklerinizi anında görün.</p>
+                        <h1>Yapay Zeka Deneme Sınavı</h1>
+                        <p>Zorluk derecesini seç, sınava başla, AI eksiklerini bulsun.</p>
                     </div>
                 </header>
-                <div class="empty-state">
-                    <div class="empty-icon"><i class="fa-solid fa-laptop-code"></i></div>
-                    <h3>Sınav Modülü Yapım Aşamasında</h3>
-                    <p>Web platformu için gelişmiş online sınav modülü kodlanıyor. Bu süreçte sorularınızı AI Öğretmen'e çözdürebilirsiniz.</p>
-                    <button class="btn-primary mt-4" onclick="switchTab('chat')">AI Öğretmen'e Git</button>
+                
+                <!-- Exam Setup -->
+                <div id="exam-setup" class="bento-card max-w-md" style="margin: 0 auto; margin-top: 40px;">
+                    <h3 class="mb-6 text-center">Yeni Sınav Oluştur</h3>
+                    <div class="form-group">
+                        <label>Ders / Konu</label>
+                        <select id="exam-topic" class="form-input">
+                            <option value="Matematik - Temel Kavramlar">Matematik - Temel Kavramlar</option>
+                            <option value="Matematik - Problemler">Matematik - Problemler</option>
+                            <option value="Türkçe - Paragraf">Türkçe - Paragraf</option>
+                            <option value="Tarih - İnkılap Tarihi">Tarih - İnkılap Tarihi</option>
+                            <option value="Coğrafya - İklim Bilgisi">Coğrafya - İklim Bilgisi</option>
+                            <option value="Fizik - Kuvvet ve Hareket">Fizik - Kuvvet ve Hareket</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Zorluk Seviyesi</label>
+                        <select id="exam-difficulty" class="form-input">
+                            <option value="Kolay">Kolay (Başlangıç)</option>
+                            <option value="Orta">Orta (Standart)</option>
+                            <option value="Zor">Zor (İleri Seviye)</option>
+                        </select>
+                    </div>
+                    <button class="btn-primary w-full mt-4" id="start-exam-btn" onclick="startAIExam()">
+                        <i class="fa-solid fa-play"></i> Sınavı Başlat (5 Soru)
+                    </button>
+                    <p class="text-center text-muted text-sm mt-4">Sınav soruları anlık olarak NVIDIA AI tarafından özel üretilecektir. Lütfen başlatınca 5-10 saniye bekleyin.</p>
                 </div>
+
+                <!-- Exam Interface (Hidden initially) -->
+                <div id="exam-interface" style="display: none;">
+                    <div class="exam-header" style="display:flex; justify-content:space-between; margin-bottom: 24px; align-items:center;">
+                        <div class="badge-pill" id="exam-badge" style="margin:0;">Matematik - Orta Seviye</div>
+                        <div style="font-weight:600; font-size:18px;"><i class="fa-regular fa-clock"></i> <span id="exam-timer">00:00</span></div>
+                    </div>
+
+                    <div class="bento-card mb-6">
+                        <div class="question-nav" style="display:flex; gap:8px; margin-bottom: 24px;" id="question-nav">
+                            <!-- Question dots will be generated here -->
+                        </div>
+                        
+                        <div id="question-container">
+                            <h3 id="question-text" style="font-size: 18px; line-height: 1.6; margin-bottom: 24px;">Yükleniyor...</h3>
+                            <div class="options-grid" id="options-container" style="display:flex; flex-direction:column; gap:12px;">
+                                <!-- Options will be generated here -->
+                            </div>
+                        </div>
+                        
+                        <div style="display:flex; justify-content:space-between; margin-top: 32px; border-top: 1px solid var(--border); padding-top: 24px;">
+                            <button class="btn-outline" id="prev-question-btn" onclick="prevQuestion()" disabled><i class="fa-solid fa-arrow-left"></i> Önceki</button>
+                            <button class="btn-primary" id="next-question-btn" onclick="nextQuestion()">Sonraki <i class="fa-solid fa-arrow-right"></i></button>
+                            <button class="btn-primary" id="finish-exam-btn" onclick="finishExam()" style="display:none; background-color: var(--success);">Sınavı Bitir <i class="fa-solid fa-check"></i></button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Exam Result (Hidden initially) -->
+                <div id="exam-result" style="display: none;" class="bento-card">
+                    <div class="text-center mb-6">
+                        <div class="stat-icon green" style="margin: 0 auto 16px;"><i class="fa-solid fa-trophy"></i></div>
+                        <h2>Sınav Tamamlandı!</h2>
+                        <p class="text-muted">Puanınız ve yapay zeka analiziniz aşağıdadır.</p>
+                    </div>
+                    
+                    <div class="stats-grid mb-6">
+                        <div class="stat-card" style="justify-content:center; text-align:center;">
+                            <div class="stat-info">
+                                <p>Skor</p>
+                                <h3 id="result-score" class="text-primary">%0</h3>
+                            </div>
+                        </div>
+                        <div class="stat-card" style="justify-content:center; text-align:center;">
+                            <div class="stat-info">
+                                <p>Doğru / Yanlış</p>
+                                <h3 id="result-stats">0D / 0Y</h3>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bento-card premium-bg" style="cursor:default;">
+                        <div class="glass-content" style="padding: 24px;">
+                            <h3 style="font-size:18px; margin-bottom: 12px;"><i class="fa-solid fa-robot"></i> AI Öğretmen Analizi</h3>
+                            <div id="ai-feedback-text" style="line-height: 1.6; color: rgba(255,255,255,0.9); font-size: 15px;">
+                                Analiz yükleniyor...
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center mt-6">
+                        <button class="btn-outline" onclick="resetExam()">Yeni Sınav Başlat</button>
+                    </div>
+                </div>
+
             </section>
 
             <!-- Profile Tab -->

@@ -28,6 +28,19 @@ try {
     )";
     $pdo->exec($sql);
 
+    // Sınav Sonuçları Tablosu
+    $sql2 = "CREATE TABLE IF NOT EXISTS exam_results (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT NOT NULL,
+        topic VARCHAR(100) NOT NULL,
+        difficulty VARCHAR(50) NOT NULL,
+        score INT NOT NULL,
+        ai_feedback TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    )";
+    $pdo->exec($sql2);
+
 } catch (PDOException $e) {
     die("Veritabanı Bağlantı Hatası: Lütfen XAMPP üzerinden MySQL'i başlatın. Hata detayı: " . $e->getMessage());
 }

@@ -20,6 +20,80 @@ if (!isset($_SESSION['user_id']) && !$isAndroid) {
     exit;
 }
 
+$action = $_GET['action'] ?? 'chat';
+
+// ----------------------------------------------------
+// EXAM MODULE SPECIFIC ACTIONS
+// ----------------------------------------------------
+if ($action === 'generate_exam') {
+    $input = json_decode(file_get_contents('php://input'), true);
+    $topic = $input['topic'] ?? 'Genel Kültür';
+    $difficulty = $input['difficulty'] ?? 'Orta';
+    
+    $systemPrompt = "Sen uzman bir öğretmensin. SADECE aşağıdaki JSON formatında geçerli bir çıktı vermelisin. Markdown (```json) kullanma, sadece saf JSON metni gönder.";
+    $userPrompt = "Konu: $topic, Zorluk: $difficulty. Lütfen 5 adet çoktan seçmeli (A,B,C,D,E) soru üret.\nFormat:\n{\n\"questions\": [\n{\n\"question\": \"Soru metni...\",\n\"options\": [\"A şıkkı\",\"B\",\"C\",\"D\",\"E\"],\n\"correct_index\": 2\n}\n]\n}";
+    
+    $payload = [
+        "model" => "meta/llama-3.1-8b-instruct",
+        "messages" => [
+            ["role" => "system", "content" => $systemPrompt],
+            ["role" => "user", "content" => $userPrompt]
+        ],
+        "temperature" => 0.5,
+        "max_tokens" => 2000
+    ];
+    
+    // We will handle the cURL inside the main proxy logic block below by rewriting the payload
+} elseif ($action === 'analyze_exam') {
+    $input = json_decode(file_get_contents('php://input'), true);
+    $topic = $input['topic'];
+    $difficulty = $input['difficulty'];
+    $questions = $input['questions'];
+    $userAnswers = $input['userAnswers'];
+    
+    $correct = 0;
+    $wrong = 0;
+    $wrongDetails = "";
+    
+    foreach ($questions as $idx => $q) {
+        $uAns = $userAnswers[$idx];
+        $cAns = $q['correct_index'];
+        if ($uAns === $cAns) {
+            $correct++;
+        } else {
+            $wrong++;
+            $wrongDetails .= "Soru " . ($idx+1) . " için yanlış yaptı. (Konu: " . $q['question'] . ")\n";
+        }
+    }
+    
+    $score = ($correct / count($questions)) * 100;
+    
+    $systemPrompt = "Sen bir rehber öğretmensin. Öğrencinin deneme sınavı sonucuna göre kısa, motive edici ve eksiklerine odaklanan bir analiz paragrafı yaz (Markdown destekli).";
+    $userPrompt = "Öğrenci $topic ($difficulty) sınavında $correct Doğru, $wrong Yanlış yaptı. Puanı: $score/100.\n$wrongDetails\nLütfen sadece analiz metnini yaz.";
+    
+    $payload = [
+        "model" => "meta/llama-3.1-8b-instruct",
+        "messages" => [
+            ["role" => "system", "content" => $systemPrompt],
+            ["role" => "user", "content" => $userPrompt]
+        ],
+        "temperature" => 0.7,
+        "max_tokens" => 512
+    ];
+    
+    // Pass context so we can save DB later
+    $analysisContext = [
+        'score' => $score,
+        'correct' => $correct,
+        'wrong' => $wrong,
+        'topic' => $topic,
+        'difficulty' => $difficulty
+    ];
+} else {
+    // Normal Chat / Vision Action
+    $payload = json_decode(file_get_contents('php://input'), true);
+}
+
 // ----------------------------------------------------
 // NVIDIA API PROXY (Security & Timeout Optimization)
 // ----------------------------------------------------
@@ -62,12 +136,57 @@ if (curl_errno($ch)) {
     http_response_code(500);
     echo json_encode(['error' => 'Backend Connection Error: ' . curl_error($ch)]);
 } else {
-    // If NVIDIA returned an error, pass it back so the frontend can display it
-    $respDecoded = json_decode($response, true);
-    if ($httpCode >= 400 && isset($respDecoded['error'])) {
-        http_response_code($httpCode);
-        echo json_encode(['error' => 'NVIDIA API Error: ' . (is_string($respDecoded['error']) ? $respDecoded['error'] : json_encode($respDecoded['error']))]);
+    // Process response based on action
+    if ($action === 'generate_exam') {
+        $respDecoded = json_decode($response, true);
+        if (isset($respDecoded['choices'][0]['message']['content'])) {
+            $content = $respDecoded['choices'][0]['message']['content'];
+            // Strip any accidental markdown
+            $content = str_replace('```json', '', $content);
+            $content = str_replace('```', '', $content);
+            $jsonParsed = json_decode(trim($content), true);
+            if ($jsonParsed) {
+                http_response_code(200);
+                echo json_encode($jsonParsed);
+            } else {
+                http_response_code(500);
+                echo json_encode(['error' => 'AI geçerli bir JSON üretemedi.', 'raw' => $content]);
+            }
+        } else {
+            http_response_code(500);
+            echo json_encode(['error' => 'AI cevap vermedi.']);
+        }
+    } elseif ($action === 'analyze_exam') {
+        $respDecoded = json_decode($response, true);
+        if (isset($respDecoded['choices'][0]['message']['content'])) {
+            $feedback = $respDecoded['choices'][0]['message']['content'];
+            
+            // Save to Database
+            require_once 'db.php';
+            if (isset($_SESSION['user_id'])) {
+                $stmt = $pdo->prepare("INSERT INTO exam_results (user_id, topic, difficulty, score, ai_feedback) VALUES (?, ?, ?, ?, ?)");
+                $stmt->execute([
+                    $_SESSION['user_id'],
+                    $analysisContext['topic'],
+                    $analysisContext['difficulty'],
+                    $analysisContext['score'],
+                    $feedback
+                ]);
+            }
+            
+            http_response_code(200);
+            echo json_encode([
+                'score' => $analysisContext['score'],
+                'correct' => $analysisContext['correct'],
+                'wrong' => $analysisContext['wrong'],
+                'ai_feedback' => $feedback
+            ]);
+        } else {
+            http_response_code(500);
+            echo json_encode(['error' => 'AI analiz üretemedi.']);
+        }
     } else {
+        // Normal chat response
         http_response_code($httpCode);
         echo $response;
     }
