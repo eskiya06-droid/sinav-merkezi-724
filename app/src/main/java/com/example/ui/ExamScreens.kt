@@ -351,7 +351,6 @@ fun AuthScreen(
             .fillMaxSize()
             .background(BrandBackground)
             .windowInsetsPadding(WindowInsets.safeDrawing)
-            .imePadding()
             .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -369,10 +368,12 @@ fun AuthScreen(
             contentAlignment = Alignment.Center
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.offset(y = (-10).dp)) {
-                Image(
-                    painter = painterResource(id = R.drawable.kitap724_logo),
-                    contentDescription = "Kitap 7/24 Logo",
-                    modifier = Modifier.height(70.dp).fillMaxWidth().padding(horizontal = 32.dp)
+                Text(
+                    text = "KİTAP 7/24",
+                    color = Color.White,
+                    fontSize = 42.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    letterSpacing = 2.sp
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
@@ -905,7 +906,7 @@ fun TestConfigScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clip(RoundedCornerShape(8.dp))
-                                .background(if (isSelected) BrandPrimaryLight.copy(alpha = 0.3f) else Color.Transparent)
+                                .background(if (isSelected) BrandPrimary else Color.Transparent)
                                 .border(
                                     1.dp,
                                     if (isSelected) BrandPrimary else Color.Transparent,
@@ -967,7 +968,7 @@ fun TestConfigScreen(
                                 modifier = Modifier
                                     .weight(1f)
                                     .clip(RoundedCornerShape(10.dp))
-                                    .background(if (isSelected) BrandPrimaryLight else Color(0xFF131A30))
+                                    .background(if (isSelected) BrandPrimary else BrandBackground)
                                     .border(
                                         1.dp,
                                         if (isSelected) BrandPrimary else BrandBorder,
@@ -1000,7 +1001,7 @@ fun TestConfigScreen(
                                 modifier = Modifier
                                     .weight(1f)
                                     .clip(RoundedCornerShape(10.dp))
-                                    .background(if (isSelected) BrandPrimaryLight else Color(0xFF131A30))
+                                    .background(if (isSelected) BrandPrimary else BrandBackground)
                                     .border(
                                         1.dp,
                                         if (isSelected) BrandPrimary else BrandBorder,
@@ -1217,7 +1218,7 @@ fun ActiveExamScreen(
                 Box(
                     modifier = Modifier
                         .clip(RoundedCornerShape(6.dp))
-                        .background(BrandPrimary.copy(alpha = 0.12f))
+                        .background(BrandPrimary.copy(alpha = 0.15f))
                         .padding(horizontal = 8.dp, vertical = 4.dp)
                 ) {
                     Text(
@@ -1233,7 +1234,7 @@ fun ActiveExamScreen(
                 // Question Text
                 Text(
                     text = currentQuestion.questionText,
-                    color = Color.White,
+                    color = TextLight,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold,
                     lineHeight = 24.sp,
@@ -1293,6 +1294,7 @@ fun ActiveExamScreen(
                         }
                     }
                 }
+                Spacer(modifier = Modifier.height(40.dp))
             }
 
             // Virtual Optical Form Sheet (Optik Form Hissi)
@@ -2555,5 +2557,6 @@ fun ProfileScreen(
             Spacer(modifier = Modifier.width(8.dp))
             Text("Çıkış Yap", fontSize = 16.sp, fontWeight = FontWeight.Bold)
         }
+        Spacer(modifier = Modifier.height(80.dp))
     }
 }
