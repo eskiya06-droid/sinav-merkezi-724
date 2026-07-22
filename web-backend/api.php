@@ -30,8 +30,8 @@ if ($action === 'generate_exam') {
     $topic = $input['topic'] ?? 'Genel Kültür';
     $difficulty = $input['difficulty'] ?? 'Orta';
     
-    $systemPrompt = "Sen uzman bir öğretmensin. SADECE aşağıdaki JSON formatında geçerli bir çıktı vermelisin. Markdown (```json) kullanma, sadece saf JSON metni gönder.";
-    $userPrompt = "Konu: $topic, Zorluk: $difficulty. Lütfen 5 adet çoktan seçmeli (A,B,C,D,E) soru üret.\nFormat:\n{\n\"questions\": [\n{\n\"question\": \"Soru metni...\",\n\"options\": [\"A şıkkı\",\"B\",\"C\",\"D\",\"E\"],\n\"correct_index\": 2\n}\n]\n}";
+    $systemPrompt = "Sen uzman bir öğretmensin. Çıktın SADECE geçerli bir JSON objesi olmalıdır. Başka hiçbir açıklama yazma. JSON içinde ASLA gerçek satır atlama (Enter) kullanma, gerekirse \\n kullan. Trailing comma kullanma.";
+    $userPrompt = "Konu: $topic, Zorluk: $difficulty. Lütfen 5 adet çoktan seçmeli (A,B,C,D,E) soru üret. Format MUST be exactly:\n{\n\"questions\": [\n{\n\"question\": \"Soru metni...\",\n\"options\": [\"A şıkkı\",\"B\",\"C\",\"D\",\"E\"],\n\"correct_index\": 2\n}\n]\n}";
     
     $payload = [
         "model" => "meta/llama-3.1-8b-instruct",
@@ -40,7 +40,8 @@ if ($action === 'generate_exam') {
             ["role" => "user", "content" => $userPrompt]
         ],
         "temperature" => 0.5,
-        "max_tokens" => 2000
+        "max_tokens" => 2000,
+        "response_format" => ["type" => "json_object"]
     ];
     
     // We will handle the cURL inside the main proxy logic block below by rewriting the payload
@@ -137,6 +138,11 @@ if (curl_errno($ch)) {
             
             if ($startPos !== false && $endPos !== false) {
                 $jsonStr = substr($content, $startPos, $endPos - $startPos + 1);
+                
+                // CRITICAL FIX: Llama model sometimes uses literal newlines/tabs inside JSON strings for complex math equations.
+                // We strip all literal newlines and tabs to collapse the JSON into a single valid line.
+                $jsonStr = str_replace(["\r", "\n", "\t"], " ", $jsonStr);
+                
                 $jsonParsed = json_decode($jsonStr, true);
                 
                 if ($jsonParsed) {
