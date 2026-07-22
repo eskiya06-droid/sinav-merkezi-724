@@ -10,20 +10,43 @@ class NvidiaNimService {
 
     private val apiKey = "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"
 
-    // List of free models to fallback on if one fails or hits rate limits
-    private val modelPool = listOf(
+    // 1. Soru Üretimi ve Mantık (JSON ve Karmaşık Müfredat)
+    private val jsonLogicPool = listOf(
+        "meta/llama-3.3-70b-instruct",
         "meta/llama-3.1-70b-instruct",
-        "meta/llama-3.1-8b-instruct",
+        "nvidia/nemotron-4-340b-instruct",
+        "mistralai/mistral-large"
+    )
+
+    // 2. Chat, Öğretmenlik ve Empati (Akıcı Türkçe, Sohbet, İpucu verme)
+    private val teacherChatPool = listOf(
+        "meta/llama-3.1-70b-instruct",
         "mistralai/mistral-large",
+        "google/gemma-3-12b-it",
         "mistralai/mixtral-8x22b-instruct-v0.1",
-        "google/gemma-2-9b-it",
-        "microsoft/phi-3-mini-128k-instruct"
+        "microsoft/phi-3.5-moe-instruct"
+    )
+
+    // 3. Veri Analizi ve Karne (Sayısal analiz, Raporlama)
+    private val analysisPool = listOf(
+        "deepseek-ai/deepseek-v4-pro",
+        "nvidia/llama-3.1-nemotron-70b-instruct",
+        "ibm/granite-3.0-8b-instruct",
+        "qwen/qwen3.5-397b-a17b"
+    )
+
+    // 4. Görsel Analiz (Gelecek için: Resimli Soru Okuma / OCR)
+    private val visionPool = listOf(
+        "meta/llama-3.2-90b-vision-instruct",
+        "meta/llama-3.2-11b-vision-instruct",
+        "nvidia/nemotron-nano-12b-v2-vl"
     )
 
     /**
      * Executes the API call and automatically falls back to the next model in the pool if an error occurs.
      */
     private suspend fun executeWithFallback(
+        modelPool: List<String>,
         messages: List<NvidiaChatMessage>,
         temperature: Float = 0.7f,
         responseFormat: ResponseFormat? = null
@@ -107,7 +130,7 @@ class NvidiaNimService {
         // Only some models support strict JSON response_format, we will just rely on the prompt instructing it.
         // If we strictly want json_object, we can pass ResponseFormat("json_object"). 
         // But since we fallback to various models, prompt engineering is safer.
-        val resultJson = executeWithFallback(messages, temperature = 0.5f)
+        val resultJson = executeWithFallback(jsonLogicPool, messages, temperature = 0.5f)
         
         if (resultJson != null) {
             try {
@@ -168,7 +191,7 @@ class NvidiaNimService {
             NvidiaChatMessage("user", userPrompt)
         )
 
-        executeWithFallback(messages, temperature = 0.7f)
+        executeWithFallback(teacherChatPool, messages, temperature = 0.7f)
             ?: "Bağlantı hatası sebebiyle detaylı AI açıklaması oluşturulamadı. \n\nTemel Çözüm: $explanation"
     }
 
@@ -209,7 +232,7 @@ class NvidiaNimService {
             NvidiaChatMessage("user", userPrompt)
         )
 
-        executeWithFallback(messages, temperature = 0.6f)
+        executeWithFallback(analysisPool, messages, temperature = 0.6f)
             ?: "Yapay zeka karne raporu oluşturulamadı. Rapor oluşturulurken bağlantı hatası gerçekleşti."
     }
 
@@ -234,7 +257,7 @@ class NvidiaNimService {
         messages.addAll(chatHistory)
         messages.add(NvidiaChatMessage("user", userMessage))
 
-        executeWithFallback(messages, temperature = 0.7f)
+        executeWithFallback(teacherChatPool, messages, temperature = 0.7f)
             ?: "Bağlantı hatası oluştu. Sorunu çözmek için çalışıyorum. Lütfen daha sonra tekrar deneyin."
     }
 
