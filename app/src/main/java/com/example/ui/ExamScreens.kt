@@ -56,6 +56,8 @@ import com.example.data.MistakeQuestion
 import com.example.ui.theme.*
 import kotlinx.coroutines.launch
 import org.json.JSONObject
+import androidx.compose.ui.res.painterResource
+import com.example.R
 
 // --- 1. Geometric Blueprint Drawing Canvas ---
 @Composable

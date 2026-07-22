@@ -153,10 +153,19 @@ class ExamViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun updateExamPreferences(targetExam: String, field: String) {
+    fun updateExamPreferences(targetExam: String, field: String, phone: String = "", address: String = "", email: String = "", birthDate: String = "", name: String = "") {
         viewModelScope.launch(Dispatchers.IO) {
             repository.getProfile()?.let { profile ->
-                repository.updateProfile(profile.copy(targetExam = targetExam, field = field))
+                val updated = profile.copy(
+                    targetExam = targetExam, 
+                    field = field,
+                    phone = phone,
+                    address = address,
+                    email = email,
+                    birthDate = birthDate,
+                    username = if (name.isNotBlank()) name else profile.username
+                )
+                repository.updateProfile(updated)
             }
         }
     }
