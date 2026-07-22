@@ -2460,6 +2460,8 @@ fun ExplanationDialog(
 
 
 
+
+
 // --- Profile Screen ---
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -2607,6 +2609,5 @@ fun ProfileScreen(
             Spacer(modifier = Modifier.width(8.dp))
             Text("Çıkış Yap", fontSize = 16.sp, fontWeight = FontWeight.Bold)
         }
-        Spacer(modifier = Modifier.height(80.dp))
     }
 }

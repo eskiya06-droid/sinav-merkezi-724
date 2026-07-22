@@ -198,7 +198,8 @@ class ExamViewModel(application: Application) : AndroidViewModel(application) {
                     topic = topic,
                     count = count,
                     examType = profile.targetExam,
-                    field = profile.field
+                    field = profile.field,
+                    targetExam = profile.targetExam
                 )
 
                 _activeExamState.value = ActiveExamState(
@@ -232,8 +233,8 @@ class ExamViewModel(application: Application) : AndroidViewModel(application) {
                 val lesson1 = "Matematik"
                 val lesson2 = if (profile.field == "Sayısal") "Fen Bilimleri" else "Türkçe"
                 
-                val q1 = nvidiaNimService.generateQuestions(lesson1, "Genel Karışık", totalQuestionsCount / 2, profile.targetExam, profile.field)
-                val q2 = nvidiaNimService.generateQuestions(lesson2, "Genel Karışık", totalQuestionsCount / 2, profile.targetExam, profile.field)
+                val q1 = nvidiaNimService.generateQuestions(lesson1, "Genel Karışık", totalQuestionsCount / 2, profile.targetExam, profile.field, profile.targetExam)
+                val q2 = nvidiaNimService.generateQuestions(lesson2, "Genel Karışık", totalQuestionsCount / 2, profile.targetExam, profile.field, profile.targetExam)
                 
                 val combined = q1 + q2
 
@@ -476,5 +477,23 @@ class ExamViewModel(application: Application) : AndroidViewModel(application) {
         _chatMessages.value = listOf(
             ChatMessage("AI", "Merhaba! Ben Yapay Zeka Öğretmeniniz. Sınav hazırlık sürecinizde konu özetleri, çalışma programları, Pomodoro planlaması yapmak veya kafanıza takılan soruları sormak için 7/24 buradayım. Bugün hangi konuyu çalışalım?")
         )
+    }
+
+    fun askAIToSolveInChat(question: SolvedQuestion) {
+        val promptText = """
+            Şu sorunun çözümünü adım adım detaylıca anlatır mısın?
+            
+            Soru: ${question.questionText}
+            Şıklar:
+            A) ${question.optionA}
+            B) ${question.optionB}
+            C) ${question.optionC}
+            D) ${question.optionD}
+            
+            Doğru Cevap: ${question.correctAnswer}
+        """.trimIndent()
+        
+        _currentScreen.value = AppScreen.AI_CHAT
+        sendChatMessage(promptText, null)
     }
 }

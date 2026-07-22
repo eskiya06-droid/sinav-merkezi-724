@@ -91,11 +91,47 @@ class NvidiaNimService {
         topic: String,
         count: Int,
         examType: String,
-        field: String
-    ): List<GeneratedQuestion> = withContext(Dispatchers.IO) {
+        field: String,
+        targetExam: String = "YKS"
+    ): List<GeneratedQuestion> = kotlinx.coroutines.coroutineScope {
+        val batchSize = 10
+        val batches = count / batchSize
+        val remainder = count % batchSize
+        
+        val allQuestions = mutableListOf<GeneratedQuestion>()
+        
+        val deferredResults = (0 until batches).map {
+            kotlinx.coroutines.async(Dispatchers.IO) {
+                generateBatch(lesson, topic, batchSize, examType, field, targetExam)
+            }
+        }
+        
+        deferredResults.forEach { deferred ->
+            allQuestions.addAll(deferred.await())
+        }
+        
+        if (remainder > 0) {
+            allQuestions.addAll(generateBatch(lesson, topic, remainder, examType, field, targetExam))
+        }
+        
+        if (allQuestions.isNotEmpty()) return@coroutineScope allQuestions
+        
+        // Fallback
+        getFallbackQuestions(lesson, topic, count)
+    }
+
+    private suspend fun generateBatch(
+        lesson: String,
+        topic: String,
+        count: Int,
+        examType: String,
+        field: String,
+        targetExam: String
+    ): List<GeneratedQuestion> {
         val systemPrompt = "You are an AI Question Bank Engine. Output ONLY valid JSON."
         val userPrompt = """
-            $examType ($field) sınavı için, $lesson dersinin "$topic" konusundan tam olarak $count adet özgün ve müfredata uygun çoktan seçmeli soru üret.
+            Hedef Sınav: $targetExam ($field). $lesson dersinin "$topic" konusundan tam olarak $count adet özgün ve müfredata uygun çoktan seçmeli soru üret.
+            Soruları TAMAMEN $targetExam müfredatına ve standartlarına uygun hazırla. ÇOK ÖNEMLİ KURAL: Her soru birbirinden tamamen benzersiz olmalı, asla daha önce sorduğun klasik soruları tekrar etme!
             Her soru mutlaka 4 şıklı olmalıdır (A, B, C, D) ve Türkçe dilinde yazılmalıdır.
             
             Eğer konu Matematik veya Geometri ise, sorunun görsel canlandırması için isteğe bağlı olarak 'drawingCommands' alanını doldurabilirsin.
@@ -128,31 +164,24 @@ class NvidiaNimService {
             NvidiaChatMessage("user", userPrompt)
         )
 
-        // Only some models support strict JSON response_format, we will just rely on the prompt instructing it.
-        // If we strictly want json_object, we can pass ResponseFormat("json_object"). 
-        // But since we fallback to various models, prompt engineering is safer.
-        val resultJson = executeWithFallback(jsonLogicPool, messages, temperature = 0.5f)
+        // Generate JSON with higher temperature to prevent duplicates
+        val resultJson = executeWithFallback(jsonLogicPool, messages, temperature = 0.85f)
         
         if (resultJson != null) {
             try {
-                // Parse the JSON manually or via Moshi. Wait, Moshi is already used for GeneratedQuestionList.
-                // Let's use Moshi to parse.
                 val moshi = com.squareup.moshi.Moshi.Builder().add(com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory()).build()
                 val adapter = moshi.adapter(GeneratedQuestionList::class.java)
                 
-                // Clean markdown artifacts if the model wraps it in ```json ... ```
                 val cleanJson = resultJson.replace("```json", "").replace("```", "").trim()
                 val parsed = adapter.fromJson(cleanJson)
                 if (parsed != null && parsed.questions.isNotEmpty()) {
-                    return@withContext parsed.questions
+                    return parsed.questions
                 }
             } catch (e: Exception) {
                 Log.e("NvidiaNimService", "JSON Parsing failed: ${e.message}")
             }
         }
-        
-        // Fallback
-        getFallbackQuestions(lesson, topic, count)
+        return emptyList()
     }
 
     /**
@@ -203,7 +232,7 @@ class NvidiaNimService {
         profile: UserProfile,
         historyList: List<ExamHistory>
     ): String = withContext(Dispatchers.IO) {
-        val systemPrompt = "Sen öğrencilerin verilerini titizlikle analiz edip onlara rehberlik eden profesyonel bir rehber öğretmen ve veri analisti yapay zekasın."
+        val systemPrompt = "Sen öğrencilerin verilerini titizlikle analiz edip onlara rehberlik eden profesyonel bir rehber öğretmen ve aynı zamanda Kitap724.com'un e-ticaret eğitim danışmanısın."
         
         val historyText = historyList.take(8).joinToString("\n") { h ->
             "- Başlık: ${h.title}, Tür: ${h.examType}, Doğru: ${h.correctCount}, Yanlış: ${h.wrongCount}, Boş: ${h.blankCount}"
@@ -224,6 +253,7 @@ class NvidiaNimService {
             2. **Güçlü Olduğu Alanlar ve Dersler**: Hangi konularda oldukça iyi?
             3. **Acil Odaklanması Gereken Zayıf Noktalar**: Hatalarının yoğunlaştığı ders ve konuları tespit et (Örn: "Matematik'te Üslü Sayılar konusunda işlem hatası yapıyorsun, Paragrafta ise olumsuz köklü sorularda takılıyorsun.")
             4. **Özel 2 Günlük Çalışma Reçetesi**: Öğrenciye sonraki 2 gün için ders ve konu bazlı nokta atışı çalışma tavsiyesi ve motivasyon ver.
+            5. **Kitap724.com Özel Tavsiyesi (ÇOK ÖNEMLİ):** Öğrencinin zayıf olduğu konuları tespit et ve bu eksikleri kapatması için ona Kitap724.com sitemizden alabileceği spesifik bir kitap tavsiye et (Örn: 345 Yayınları TYT Matematik Soru Bankası, Antrenmanlarla Matematik, Limit Türev Fasikülü vb.). Cümleni mutlaka 'Yapay Zeka Öğretmeninizin Tavsiyesi: Bu eksiklerinizi hızla kapatmak için Kitap724.com sitemiz üzerinden şu kitabı temin edip çözmenizi şiddetle öneriyorum...' tarzında bitir.
 
             Yazım dilin tamamen Türkçe, teşvik edici, cana yakın ve net olmalı. Güzel markdown başlıkları ve madde işaretleri kullan.
         """.trimIndent()
