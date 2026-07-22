@@ -14,6 +14,10 @@ data class UserProfile(
     val passwordHash: String, // Mock password
     val targetExam: String, // "YKS (TYT-AYT)", "LGS", "KPSS", "DGS"
     val field: String,      // "Sayısal", "Sözel", "Eşit Ağırlık", "Genel"
+    val phone: String = "",
+    val address: String = "",
+    val email: String = "",
+    val birthDate: String = "",
     val createdTimestamp: Long = System.currentTimeMillis()
 )
 
@@ -123,7 +127,7 @@ interface MistakeQuestionDao {
 
 @Database(
     entities = [UserProfile::class, ExamHistory::class, SolvedQuestion::class, MistakeQuestion::class],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {

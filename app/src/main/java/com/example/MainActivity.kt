@@ -290,7 +290,9 @@ fun MainContent(viewModel: ExamViewModel) {
                     profile?.let { p ->
                         ProfileScreen(
                             profile = p,
-                            onSave = { exam, field -> viewModel.updateExamPreferences(exam, field) },
+                            onSave = { exam, field, phone, address, email, birthDate, name -> 
+                                viewModel.updateExamPreferences(exam, field, phone, address, email, birthDate, name) 
+                            },
                             onLogout = { viewModel.logout() }
                         )
                     }

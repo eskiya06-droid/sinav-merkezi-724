@@ -344,17 +344,20 @@ fun AuthScreen(
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
 
-    Box(
+    Column(
         modifier = Modifier
             .fillMaxSize()
             .background(BrandBackground)
             .windowInsetsPadding(WindowInsets.safeDrawing)
+            .imePadding()
+            .verticalScroll(rememberScrollState()),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Hero Section (Fixed at top)
+        // Hero Section (Now part of the scrollable column)
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(300.dp)
+                .height(260.dp)
                 .background(
                     Brush.verticalGradient(
                         colors = listOf(BrandPrimary, BrandPrimary.copy(alpha = 0.9f))
@@ -363,312 +366,137 @@ fun AuthScreen(
                 ),
             contentAlignment = Alignment.Center
         ) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.offset(y = (-20).dp)) {
-                Icon(
-                    imageVector = Icons.Default.MenuBook,
-                    contentDescription = "Logo",
-                    tint = BrandSurface,
-                    modifier = Modifier.size(56.dp)
+            Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.offset(y = (-10).dp)) {
+                Image(
+                    painter = painterResource(id = R.drawable.kitap724_logo),
+                    contentDescription = "Kitap 7/24 Logo",
+                    modifier = Modifier.height(70.dp).fillMaxWidth().padding(horizontal = 32.dp)
                 )
                 Spacer(modifier = Modifier.height(8.dp))
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        text = "KİTAP",
-                        color = BrandSurface,
-                        fontSize = 32.sp,
-                        fontWeight = FontWeight.ExtraBold,
-                        letterSpacing = 2.sp
-                    )
-                    Text(
-                        text = "7/24",
-                        color = BrandSecondary,
-                        fontSize = 32.sp,
-                        fontWeight = FontWeight.ExtraBold,
-                        modifier = Modifier.padding(start = 8.dp)
-                    )
-                }
                 Text(
                     text = "Dijital Sınav Ortağınız",
                     color = BrandSurface.copy(alpha = 0.8f),
                     fontSize = 14.sp,
                     modifier = Modifier.padding(top = 4.dp)
                 )
-            }
-        }
-
-        // Scrollable Form Section
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .imePadding()
-                .verticalScroll(rememberScrollState())
-        ) {
-            Spacer(modifier = Modifier.height(260.dp)) // Push the card down to overlap the hero section slightly
-            
-            // Auth Card
-            Card(
-                colors = CardDefaults.cardColors(containerColor = BrandSurface),
-                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
-                shape = RoundedCornerShape(24.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 24.dp)
-            ) {
-                Column(modifier = Modifier.padding(24.dp)) {
-                    // Tabs
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(BrandBackground)
-                            .padding(4.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .weight(1f)
-                                .clip(RoundedCornerShape(10.dp))
-                                .background(if (!isLoginMode) BrandSurface else Color.Transparent)
-                                .clickable { isLoginMode = false }
-                                .padding(vertical = 10.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text("Kayıt Ol", color = if (!isLoginMode) BrandPrimary else TextMuted, fontWeight = FontWeight.Bold)
-                        }
-                        Box(
-                            modifier = Modifier
-                                .weight(1f)
-                                .clip(RoundedCornerShape(10.dp))
-                                .background(if (isLoginMode) BrandSurface else Color.Transparent)
-                                .clickable { isLoginMode = true }
-                                .padding(vertical = 10.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text("Giriş Yap", color = if (isLoginMode) BrandPrimary else TextMuted, fontWeight = FontWeight.Bold)
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(24.dp))
-
-                    if (!isLoginMode) {
-                        Text(text = "Adınız Soyadınız", color = TextMuted, fontSize = 12.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(bottom = 6.dp))
-                        OutlinedTextField(
-                            value = name,
-                            onValueChange = { name = it },
-                            placeholder = { Text("Örn: Ahmet Yılmaz", color = TextMuted) },
-                            colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = BrandPrimary, unfocusedBorderColor = BrandBorder, focusedTextColor = TextLight, unfocusedTextColor = TextLight, cursorColor = BrandPrimary),
-                            singleLine = true,
-                            shape = RoundedCornerShape(12.dp),
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
-                    }
-
-                    Text(text = "Kullanıcı Adı / E-posta / Telefon", color = TextMuted, fontSize = 12.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(bottom = 6.dp))
-                    OutlinedTextField(
-                        value = identifier,
-                        onValueChange = { identifier = it },
-                        placeholder = { Text("Giriş bilginizi yazın", color = TextMuted) },
-                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = BrandPrimary, unfocusedBorderColor = BrandBorder, focusedTextColor = TextLight, unfocusedTextColor = TextLight, cursorColor = BrandPrimary),
-                        singleLine = true,
-                        shape = RoundedCornerShape(12.dp),
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    Text(text = "Şifre", color = TextMuted, fontSize = 12.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(bottom = 6.dp))
-                    OutlinedTextField(
-                        value = password,
-                        onValueChange = { password = it },
-                        placeholder = { Text("••••••••", color = TextMuted) },
-                        visualTransformation = if (passwordVisible) androidx.compose.ui.text.input.VisualTransformation.None else androidx.compose.ui.text.input.PasswordVisualTransformation(),
-                        trailingIcon = {
-                            val icon = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
-                            IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                                Icon(icon, "Görünürlük", tint = TextMuted)
-                            }
-                        },
-                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = BrandPrimary, unfocusedBorderColor = BrandBorder, focusedTextColor = TextLight, unfocusedTextColor = TextLight, cursorColor = BrandPrimary),
-                        singleLine = true,
-                        shape = RoundedCornerShape(12.dp),
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(32.dp))
-
-            Button(
-                onClick = {
-                    if (isLoginMode) {
-                        if (identifier.isNotEmpty() && password.isNotEmpty()) onLogin(identifier, password)
-                    } else {
-                        if (name.isNotEmpty() && identifier.isNotEmpty() && password.isNotEmpty()) onRegister(name, identifier, password)
-                    }
-                },
-                enabled = if (isLoginMode) identifier.isNotEmpty() && password.isNotEmpty() else name.isNotEmpty() && identifier.isNotEmpty() && password.isNotEmpty(),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = BrandSecondary,
-                    contentColor = BrandSurface,
-                    disabledContainerColor = BrandBorder,
-                    disabledContentColor = TextMuted
-                ),
-                shape = RoundedCornerShape(16.dp),
-                elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 24.dp)
-                    .height(56.dp)
-            ) {
                 Text(
-                    text = if (isLoginMode) "Giriş Yap" else "Kayıt Ol ve Başla",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold
+                    text = "www.kitap724.com",
+                    color = BrandSurface.copy(alpha = 0.9f),
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(top = 4.dp)
                 )
             }
-            
-            Spacer(modifier = Modifier.height(32.dp))
         }
-    }
-}
-
-// --- Profile Screen ---
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-fun ProfileScreen(
-    profile: UserProfile,
-    onSave: (String, String) -> Unit,
-    onLogout: () -> Unit
-) {
-    var selectedExam by remember { mutableStateOf(if (profile.targetExam == "Belirtilmedi") "YKS (TYT-AYT)" else profile.targetExam) }
-    var selectedField by remember { mutableStateOf(if (profile.field == "Belirtilmedi") "Sayısal" else profile.field) }
-
-    val exams = listOf("YKS (TYT-AYT)", "LGS", "KPSS", "DGS")
-    val fields = listOf("Sayısal", "Sözel", "Eşit Ağırlık", "Genel")
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(BrandBackground)
-            .padding(horizontal = 24.dp)
-            .verticalScroll(rememberScrollState())
-    ) {
-        Spacer(modifier = Modifier.height(32.dp))
         
-        Text(
-            text = "Profilim",
-            color = TextLight,
-            fontSize = 28.sp,
-            fontWeight = FontWeight.ExtraBold,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-        
-        Text(
-            text = "Hesap ve Sınav Ayarlarınızı Yönetin",
-            color = TextMuted,
-            fontSize = 14.sp,
-            modifier = Modifier.padding(bottom = 32.dp)
-        )
-        
+        // Auth Card (Overlaps the hero section slightly)
         Card(
             colors = CardDefaults.cardColors(containerColor = BrandSurface),
-            shape = RoundedCornerShape(20.dp),
-            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-            modifier = Modifier.fillMaxWidth()
+            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+            shape = RoundedCornerShape(24.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp)
+                .offset(y = (-40).dp)
         ) {
-            Column(modifier = Modifier.padding(20.dp)) {
-                // User Info
-                Row(verticalAlignment = Alignment.CenterVertically) {
+            Column(modifier = Modifier.padding(24.dp)) {
+                // Tabs
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(BrandBackground)
+                        .padding(4.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     Box(
                         modifier = Modifier
-                            .size(64.dp)
-                            .clip(androidx.compose.foundation.shape.CircleShape)
-                            .background(BrandPrimary.copy(alpha = 0.1f)),
+                            .weight(1f)
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(if (!isLoginMode) BrandSurface else Color.Transparent)
+                            .clickable { isLoginMode = false }
+                            .padding(vertical = 10.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Icon(Icons.Default.Person, contentDescription = "Avatar", tint = BrandPrimary, modifier = Modifier.size(32.dp))
+                        Text("Kayıt Ol", color = if (!isLoginMode) BrandPrimary else TextMuted, fontWeight = FontWeight.Bold)
                     }
-                    Spacer(modifier = Modifier.width(16.dp))
-                    Column {
-                        Text(text = profile.username, color = TextLight, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                        Text(text = profile.identifier, color = TextMuted, fontSize = 14.sp)
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(32.dp))
-
-                Text(text = "Hedeflediğiniz Sınav", color = TextLight, fontSize = 16.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 12.dp))
-                FlowRow(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    exams.forEach { exam ->
-                        val isSelected = selectedExam == exam
-                        Box(
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(12.dp))
-                                .background(if (isSelected) BrandPrimary else BrandBackground)
-                                .border(1.dp, if (isSelected) BrandPrimary else BrandBorder, RoundedCornerShape(12.dp))
-                                .clickable { selectedExam = exam }
-                                .padding(horizontal = 16.dp, vertical = 10.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(text = exam, color = if (isSelected) BrandSurface else TextMuted, fontSize = 14.sp, fontWeight = FontWeight.Bold)
-                        }
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(if (isLoginMode) BrandSurface else Color.Transparent)
+                            .clickable { isLoginMode = true }
+                            .padding(vertical = 10.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text("Giriş Yap", color = if (isLoginMode) BrandPrimary else TextMuted, fontWeight = FontWeight.Bold)
                     }
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                Text(text = "Alanınız / Branşınız", color = TextLight, fontSize = 16.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 12.dp))
-                FlowRow(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    fields.forEach { field ->
-                        val isSelected = selectedField == field
-                        Box(
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(12.dp))
-                                .background(if (isSelected) BrandPrimary else BrandBackground)
-                                .border(1.dp, if (isSelected) BrandPrimary else BrandBorder, RoundedCornerShape(12.dp))
-                                .clickable { selectedField = field }
-                                .padding(horizontal = 16.dp, vertical = 10.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(text = field, color = if (isSelected) BrandSurface else TextMuted, fontSize = 14.sp, fontWeight = FontWeight.Bold)
-                        }
-                    }
+                if (!isLoginMode) {
+                    Text(text = "Adınız Soyadınız", color = TextMuted, fontSize = 12.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(bottom = 6.dp))
+                    OutlinedTextField(
+                        value = name,
+                        onValueChange = { name = it },
+                        placeholder = { Text("Örn: Ahmet Yılmaz", color = TextMuted) },
+                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = BrandPrimary, unfocusedBorderColor = BrandBorder, focusedTextColor = TextLight, unfocusedTextColor = TextLight, cursorColor = BrandPrimary),
+                        singleLine = true,
+                        shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
                 }
+
+                Text(text = "Kullanıcı Adı / E-posta / Telefon", color = TextMuted, fontSize = 12.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(bottom = 6.dp))
+                OutlinedTextField(
+                    value = identifier,
+                    onValueChange = { identifier = it },
+                    placeholder = { Text("Giriş bilginizi yazın", color = TextMuted) },
+                    colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = BrandPrimary, unfocusedBorderColor = BrandBorder, focusedTextColor = TextLight, unfocusedTextColor = TextLight, cursorColor = BrandPrimary),
+                    singleLine = true,
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(text = "Şifre", color = TextMuted, fontSize = 12.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(bottom = 6.dp))
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    placeholder = { Text("••••••••", color = TextMuted) },
+                    visualTransformation = if (passwordVisible) androidx.compose.ui.text.input.VisualTransformation.None else androidx.compose.ui.text.input.PasswordVisualTransformation(),
+                    trailingIcon = {
+                        val icon = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
+                        IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                            Icon(icon, "Görünürlük", tint = TextMuted)
+                        }
+                    },
+                    colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = BrandPrimary, unfocusedBorderColor = BrandBorder, focusedTextColor = TextLight, unfocusedTextColor = TextLight, cursorColor = BrandPrimary),
+                    singleLine = true,
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier.fillMaxWidth()
+                )
             }
         }
 
-        Spacer(modifier = Modifier.height(32.dp))
-
+        // Action Button
         Button(
-            onClick = { onSave(selectedExam, selectedField) },
-            colors = ButtonDefaults.buttonColors(containerColor = BrandPrimary, contentColor = BrandSurface),
-            shape = RoundedCornerShape(16.dp),
-            modifier = Modifier.fillMaxWidth().height(56.dp)
+            onClick = {
+                if (isLoginMode) onLogin(identifier, password)
+                else onRegister(name, identifier, password)
+            },
+            colors = ButtonDefaults.buttonColors(containerColor = BrandPrimary),
+            shape = RoundedCornerShape(12.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp)
+                .height(56.dp)
+                .offset(y = (-16).dp) // Adjust based on the card's upward offset
         ) {
-            Text("Değişiklikleri Kaydet", fontSize = 16.sp, fontWeight = FontWeight.Bold)
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        OutlinedButton(
-            onClick = onLogout,
-            colors = ButtonDefaults.outlinedButtonColors(contentColor = WrongRed),
-            border = BorderStroke(1.dp, WrongRed),
-            shape = RoundedCornerShape(16.dp),
-            modifier = Modifier.fillMaxWidth().height(56.dp)
-        ) {
-            Icon(Icons.Default.Logout, contentDescription = "Çıkış Yap", modifier = Modifier.size(20.dp))
-            Spacer(modifier = Modifier.width(8.dp))
-            Text("Çıkış Yap", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+            Text(if (isLoginMode) "Giriş Yap" else "Kayıt Ol", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = BrandSurface)
         }
         
         Spacer(modifier = Modifier.height(32.dp))
@@ -895,7 +723,7 @@ fun DashboardScreen(
                     .height(60.dp)
                     .coloredGlow(color = Color(0xFF104678), alpha = 0.3f, blurRadius = 20.dp, offsetY = 10.dp)
             ) {
-                Text("Start Your First Test", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                Text("Hemen Sınava Başla", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.White)
             }
 
             Spacer(modifier = Modifier.height(48.dp))
@@ -1443,12 +1271,13 @@ fun ActiveExamScreen(
                                 modifier = Modifier
                                     .size(32.dp)
                                     .clip(CircleShape)
-                                    .background(if (isSelected) BrandPrimary else Color(0xFF131A30)),
+                                    .background(if (isSelected) BrandPrimary else BrandBackground)
+                                    .border(1.dp, if (isSelected) BrandPrimary else BrandBorder, CircleShape),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Text(
                                     text = label,
-                                    color = if (isSelected) BrandBackground else TextLight,
+                                    color = if (isSelected) Color.White else TextMuted,
                                     fontSize = 14.sp,
                                     fontWeight = FontWeight.Bold
                                 )
@@ -2575,3 +2404,154 @@ fun ExplanationDialog(
     }
 }
 
+
+
+// --- Profile Screen ---
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+fun ProfileScreen(
+    profile: com.example.data.UserProfile,
+    onSave: (String, String, String, String, String, String, String) -> Unit,
+    onLogout: () -> Unit
+) {
+    var selectedExam by remember { mutableStateOf(if (profile.targetExam == "Belirtilmedi") "YKS (TYT-AYT)" else profile.targetExam) }
+    var selectedField by remember { mutableStateOf(if (profile.field == "Belirtilmedi") "Sayısal" else profile.field) }
+    
+    var name by remember { mutableStateOf(profile.username) }
+    var phone by remember { mutableStateOf(profile.phone) }
+    var email by remember { mutableStateOf(profile.email) }
+    var address by remember { mutableStateOf(profile.address) }
+    var birthDate by remember { mutableStateOf(profile.birthDate) }
+
+    val exams = listOf("YKS (TYT-AYT)", "LGS", "KPSS", "DGS")
+    val fields = listOf("Sayısal", "Sözel", "Eşit Ağırlık", "Genel", "Dil")
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(BrandBackground)
+            .padding(horizontal = 24.dp)
+            .verticalScroll(rememberScrollState())
+    ) {
+        Spacer(modifier = Modifier.height(32.dp))
+        
+        Text(
+            text = "Profilim",
+            fontSize = 28.sp,
+            fontWeight = FontWeight.ExtraBold,
+            color = BrandPrimary,
+            modifier = Modifier.padding(bottom = 24.dp)
+        )
+
+        Card(
+            colors = CardDefaults.cardColors(containerColor = BrandSurface),
+            shape = RoundedCornerShape(16.dp),
+            elevation = CardDefaults.cardElevation(4.dp),
+            modifier = Modifier.fillMaxWidth().padding(bottom = 24.dp)
+        ) {
+            Column(modifier = Modifier.padding(20.dp)) {
+                Text("Kişisel Bilgiler", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = BrandPrimary, modifier = Modifier.padding(bottom = 16.dp))
+
+                OutlinedTextField(
+                    value = name, onValueChange = { name = it },
+                    label = { Text("Ad Soyad") },
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp),
+                    shape = RoundedCornerShape(12.dp)
+                )
+                OutlinedTextField(
+                    value = email, onValueChange = { email = it },
+                    label = { Text("E-posta Adresi") },
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp),
+                    shape = RoundedCornerShape(12.dp)
+                )
+                OutlinedTextField(
+                    value = phone, onValueChange = { phone = it },
+                    label = { Text("Telefon") },
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp),
+                    shape = RoundedCornerShape(12.dp)
+                )
+                OutlinedTextField(
+                    value = birthDate, onValueChange = { birthDate = it },
+                    label = { Text("Doğum Tarihi (GG/AA/YYYY)") },
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp),
+                    shape = RoundedCornerShape(12.dp)
+                )
+                OutlinedTextField(
+                    value = address, onValueChange = { address = it },
+                    label = { Text("Adres") },
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    minLines = 3
+                )
+            }
+        }
+
+        Card(
+            colors = CardDefaults.cardColors(containerColor = BrandSurface),
+            shape = RoundedCornerShape(16.dp),
+            elevation = CardDefaults.cardElevation(4.dp),
+            modifier = Modifier.fillMaxWidth().padding(bottom = 24.dp)
+        ) {
+            Column(modifier = Modifier.padding(20.dp)) {
+                Text("Sınav Hedefi", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = BrandPrimary, modifier = Modifier.padding(bottom = 16.dp))
+
+                Text("Hedeflediğiniz Sınav", color = TextMuted, fontSize = 12.sp, modifier = Modifier.padding(bottom = 8.dp))
+                FlowRow(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    exams.forEach { ex ->
+                        val isSel = selectedExam == ex
+                        Box(
+                            modifier = Modifier
+                                .padding(bottom = 8.dp)
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(if (isSel) BrandPrimary else BrandBackground)
+                                .clickable { selectedExam = ex }
+                                .padding(horizontal = 16.dp, vertical = 8.dp)
+                        ) {
+                            Text(ex, color = if (isSel) BrandSurface else TextMuted, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+                
+                Text("Alanınız / Branşınız", color = TextMuted, fontSize = 12.sp, modifier = Modifier.padding(bottom = 8.dp))
+                FlowRow(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    fields.forEach { fld ->
+                        val isSel = selectedField == fld
+                        Box(
+                            modifier = Modifier
+                                .padding(bottom = 8.dp)
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(if (isSel) BrandPrimary else BrandBackground)
+                                .clickable { selectedField = fld }
+                                .padding(horizontal = 16.dp, vertical = 8.dp)
+                        ) {
+                            Text(fld, color = if (isSel) BrandSurface else TextMuted, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                        }
+                    }
+                }
+            }
+        }
+
+        Button(
+            onClick = { onSave(selectedExam, selectedField, phone, address, email, birthDate, name) },
+            colors = ButtonDefaults.buttonColors(containerColor = CorrectGreen),
+            shape = RoundedCornerShape(12.dp),
+            modifier = Modifier.fillMaxWidth().height(56.dp).padding(bottom = 16.dp)
+        ) {
+            Text("Bilgileri Güncelle", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.White)
+        }
+
+        OutlinedButton(
+            onClick = onLogout,
+            colors = ButtonDefaults.outlinedButtonColors(contentColor = WrongRed),
+            border = BorderStroke(1.dp, WrongRed),
+            shape = RoundedCornerShape(12.dp),
+            modifier = Modifier.fillMaxWidth().height(56.dp).padding(bottom = 32.dp)
+        ) {
+            Icon(Icons.Default.Logout, contentDescription = "Çıkış", modifier = Modifier.size(20.dp))
+            Spacer(modifier = Modifier.width(8.dp))
+            Text("Çıkış Yap", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+        }
+    }
+}
