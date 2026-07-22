@@ -101,7 +101,76 @@ if ($action === 'generate_exam') {
 $apiKey = "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";
 $baseUrl = "https://integrate.api.nvidia.com/v1/chat/completions";
 
-// Initialize cURL
+if ($action === 'generate_exam') {
+    // 30 questions is too large for a single Llama 8B output (causes JSON truncation).
+    // We split it into 3 parallel requests of 10 questions each.
+    $userPromptBatch = "Konu: $topic, Zorluk: $difficulty. Lütfen 10 adet çoktan seçmeli (A,B,C,D,E) kısa ve net soru üret. Format MUST be exactly:\n{\n\"questions\": [\n{\n\"question\": \"Kısa soru metni...\",\n\"options\": [\"A\",\"B\",\"C\",\"D\",\"E\"],\n\"correct_index\": 2\n}\n]\n}";
+    $payload['messages'][1]['content'] = $userPromptBatch;
+    $payload['max_tokens'] = 3000;
+
+    $mh = curl_multi_init();
+    $ch_array = [];
+    $total_batches = 3;
+    
+    for ($i = 0; $i < $total_batches; $i++) {
+        $ch_array[$i] = curl_init($baseUrl);
+        curl_setopt($ch_array[$i], CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch_array[$i], CURLOPT_POST, true);
+        curl_setopt($ch_array[$i], CURLOPT_POSTFIELDS, json_encode($payload));
+        curl_setopt($ch_array[$i], CURLOPT_HTTPHEADER, [
+            "Authorization: Bearer $apiKey",
+            "Content-Type: application/json",
+            "Accept: application/json"
+        ]);
+        curl_setopt($ch_array[$i], CURLOPT_TIMEOUT, 90);
+        curl_multi_add_handle($mh, $ch_array[$i]);
+    }
+    
+    $active = null;
+    do {
+        $mrc = curl_multi_exec($mh, $active);
+    } while ($mrc == CURLM_CALL_MULTI_PERFORM);
+    
+    while ($active && $mrc == CURLM_OK) {
+        if (curl_multi_select($mh) != -1) {
+            do {
+                $mrc = curl_multi_exec($mh, $active);
+            } while ($mrc == CURLM_CALL_MULTI_PERFORM);
+        }
+    }
+    
+    $allQuestions = [];
+    foreach ($ch_array as $i => $ch_handle) {
+        $response = curl_multi_getcontent($ch_handle);
+        $respDecoded = json_decode($response, true);
+        if (isset($respDecoded['choices'][0]['message']['content'])) {
+            $content = $respDecoded['choices'][0]['message']['content'];
+            $startPos = strpos($content, '{');
+            $endPos = strrpos($content, '}');
+            if ($startPos !== false && $endPos !== false) {
+                $jsonStr = substr($content, $startPos, $endPos - $startPos + 1);
+                $jsonStr = str_replace(["\r", "\n", "\t"], " ", $jsonStr);
+                $jsonParsed = json_decode($jsonStr, true);
+                if ($jsonParsed && isset($jsonParsed['questions'])) {
+                    $allQuestions = array_merge($allQuestions, $jsonParsed['questions']);
+                }
+            }
+        }
+        curl_multi_remove_handle($mh, $ch_handle);
+    }
+    curl_multi_close($mh);
+    
+    if (count($allQuestions) > 0) {
+        http_response_code(200);
+        echo json_encode(['questions' => $allQuestions]);
+    } else {
+        http_response_code(500);
+        echo json_encode(['error' => 'AI JSON üretti ancak format hatalı veya token limiti aşıldı.']);
+    }
+    exit;
+}
+
+// Initialize Single cURL for other actions (Chat, Vision, Analyze)
 $ch = curl_init($baseUrl);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_POST, true);
@@ -115,8 +184,6 @@ curl_setopt($ch, CURLOPT_HTTPHEADER, [
 // Set dynamic timeout: Vision tasks need more time (60s), Text tasks fail faster (25s)
 if ($action === 'vision') {
     curl_setopt($ch, CURLOPT_TIMEOUT, 60);
-} elseif ($action === 'generate_exam') {
-    curl_setopt($ch, CURLOPT_TIMEOUT, 150); // 30 questions can take up to 2 minutes
 } else {
     curl_setopt($ch, CURLOPT_TIMEOUT, 25);
 }
@@ -129,40 +196,7 @@ if (curl_errno($ch)) {
     echo json_encode(['error' => 'Backend Connection Error: ' . curl_error($ch)]);
 } else {
     // Process response based on action
-    if ($action === 'generate_exam') {
-        $respDecoded = json_decode($response, true);
-        if (isset($respDecoded['choices'][0]['message']['content'])) {
-            $content = $respDecoded['choices'][0]['message']['content'];
-            
-            // Extract JSON block using substring (bypassing AI conversational text)
-            $startPos = strpos($content, '{');
-            $endPos = strrpos($content, '}');
-            
-            if ($startPos !== false && $endPos !== false) {
-                $jsonStr = substr($content, $startPos, $endPos - $startPos + 1);
-                
-                // CRITICAL FIX: Llama model sometimes uses literal newlines/tabs inside JSON strings for complex math equations.
-                // We strip all literal newlines and tabs to collapse the JSON into a single valid line.
-                $jsonStr = str_replace(["\r", "\n", "\t"], " ", $jsonStr);
-                
-                $jsonParsed = json_decode($jsonStr, true);
-                
-                if ($jsonParsed) {
-                    http_response_code(200);
-                    echo json_encode($jsonParsed);
-                } else {
-                    http_response_code(500);
-                    echo json_encode(['error' => 'AI JSON üretti ancak format hatalı.', 'raw' => $content]);
-                }
-            } else {
-                http_response_code(500);
-                echo json_encode(['error' => 'AI geçerli bir JSON üretemedi.', 'raw' => $content]);
-            }
-        } else {
-            http_response_code(500);
-            echo json_encode(['error' => 'AI cevap vermedi.']);
-        }
-    } elseif ($action === 'analyze_exam') {
+    if ($action === 'analyze_exam') {
         $respDecoded = json_decode($response, true);
         if (isset($respDecoded['choices'][0]['message']['content'])) {
             $feedback = $respDecoded['choices'][0]['message']['content'];
