@@ -37,6 +37,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.Dp
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Schedule
