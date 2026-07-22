@@ -51,6 +51,7 @@ if ($action === 'generate_exam') {
     $difficulty = $input['difficulty'];
     $questions = $input['questions'];
     $userAnswers = $input['userAnswers'];
+    $timeElapsed = $input['timeElapsed'] ?? 0;
     
     $correct = 0;
     $wrong = 0;
@@ -69,8 +70,8 @@ if ($action === 'generate_exam') {
     
     $score = ($correct / count($questions)) * 100;
     
-    $systemPrompt = "Sen bir rehber öğretmensin. Öğrencinin deneme sınavı sonucuna göre kısa, motive edici ve eksiklerine odaklanan bir analiz paragrafı yaz (Markdown destekli).";
-    $userPrompt = "Öğrenci $topic ($difficulty) sınavında $correct Doğru, $wrong Yanlış yaptı. Puanı: $score/100.\n$wrongDetails\nLütfen sadece analiz metnini yaz.";
+    $systemPrompt = "Sen bir rehber öğretmensin ve aynı zamanda Kitap724.com'un eğitim danışmanısın. Öğrencinin deneme sınavı sonucuna ve yanlış yaptığı sorulara göre kısa, motive edici bir analiz paragrafı yaz (Markdown destekli). ÖNEMLİ GÖREVİN: Öğrencinin zayıf olduğu konuları tespit et ve bu eksikleri kapatması için ona Kitap724.com sitemizden alabileceği spesifik bir kitap tavsiye et (Örn: 345 Yayınları TYT Matematik Soru Bankası, Antrenmanlarla Matematik, Limit Türev Fasikülü vb.). Cümleni mutlaka 'Yapay Zeka Öğretmeninizin Tavsiyesi: Bu eksiklerinizi hızla kapatmak için Kitap724.com sitemiz üzerinden şu kitabı temin edip çözmenizi şiddetle öneriyorum...' tarzında bitir.";
+    $userPrompt = "Öğrenci $topic ($difficulty) sınavında $correct Doğru, $wrong Yanlış yaptı. Puanı: $score/100.\n$wrongDetails\nLütfen sadece analiz ve Kitap724.com kitap tavsiyesi metnini yaz.";
     
     $payload = [
         "model" => "meta/llama-3.1-8b-instruct",
@@ -79,7 +80,7 @@ if ($action === 'generate_exam') {
             ["role" => "user", "content" => $userPrompt]
         ],
         "temperature" => 0.7,
-        "max_tokens" => 250
+        "max_tokens" => 500
     ];
     
     // Pass context so we can save DB later
@@ -88,7 +89,9 @@ if ($action === 'generate_exam') {
         'correct' => $correct,
         'wrong' => $wrong,
         'topic' => $topic,
-        'difficulty' => $difficulty
+        'difficulty' => $difficulty,
+        'time_spent' => $timeElapsed,
+        'questions_solved' => count($questions)
     ];
 } else {
     // Normal Chat / Vision Action
@@ -204,12 +207,14 @@ if (curl_errno($ch)) {
             // Save to Database
             require_once 'db.php';
             if (isset($_SESSION['user_id'])) {
-                $stmt = $pdo->prepare("INSERT INTO exam_results (user_id, topic, difficulty, score, ai_feedback) VALUES (?, ?, ?, ?, ?)");
+                $stmt = $pdo->prepare("INSERT INTO exam_results (user_id, topic, difficulty, score, questions_solved, time_spent, ai_feedback) VALUES (?, ?, ?, ?, ?, ?, ?)");
                 $stmt->execute([
                     $_SESSION['user_id'],
                     $analysisContext['topic'],
                     $analysisContext['difficulty'],
                     $analysisContext['score'],
+                    $analysisContext['questions_solved'],
+                    $analysisContext['time_spent'],
                     $feedback
                 ]);
             }

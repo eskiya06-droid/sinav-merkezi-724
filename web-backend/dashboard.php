@@ -72,27 +72,39 @@ $exam = $_SESSION['target_exam'];
                     </button>
                 </header>
                 
+<?php
+require_once 'db.php';
+$stmt = $pdo->prepare("SELECT SUM(questions_solved) as total_q, AVG(score) as avg_score, SUM(time_spent) as total_time FROM exam_results WHERE user_id = ?");
+$stmt->execute([$_SESSION['user_id']]);
+$stats = $stmt->fetch();
+
+$totalQ = $stats['total_q'] ? number_format($stats['total_q']) : '0';
+$avgScore = $stats['avg_score'] ? number_format($stats['avg_score'], 1) : '0';
+$totalTimeMins = $stats['total_time'] ? floor($stats['total_time'] / 60) : 0;
+$totalTimeHours = floor($totalTimeMins / 60);
+$totalTimeStr = $totalTimeHours > 0 ? "$totalTimeHours Saat" : "$totalTimeMins Dk";
+?>
                 <!-- Stats Row -->
                 <div class="stats-grid">
                     <div class="stat-card">
                         <div class="stat-icon blue"><i class="fa-solid fa-bullseye"></i></div>
                         <div class="stat-info">
                             <p>Çözülen Soru</p>
-                            <h3>1,250</h3>
+                            <h3><?= $totalQ ?></h3>
                         </div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-icon purple"><i class="fa-solid fa-chart-line"></i></div>
                         <div class="stat-info">
                             <p>Genel Başarı</p>
-                            <h3>%85.4</h3>
+                            <h3>%<?= $avgScore ?></h3>
                         </div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-icon green"><i class="fa-solid fa-clock"></i></div>
                         <div class="stat-info">
                             <p>Çalışma Süresi</p>
-                            <h3>42 Saat</h3>
+                            <h3><?= $totalTimeStr ?></h3>
                         </div>
                     </div>
                 </div>
@@ -268,6 +280,11 @@ $exam = $_SESSION['target_exam'];
 
             </section>
 
+<?php
+$stmtUser = $pdo->prepare("SELECT * FROM users WHERE id = ?");
+$stmtUser->execute([$_SESSION['user_id']]);
+$userInfo = $stmtUser->fetch();
+?>
             <!-- Profile Tab -->
             <section id="profile" class="tab-content">
                 <header class="page-header">
@@ -277,14 +294,38 @@ $exam = $_SESSION['target_exam'];
                     </div>
                 </header>
                 <div class="bento-card max-w-md">
-                    <div class="form-group">
-                        <label>Adınız Soyadınız</label>
-                        <input type="text" value="<?= htmlspecialchars($username) ?>" class="form-input" disabled>
-                    </div>
-                    <div class="form-group">
-                        <label>Hedef Sınav</label>
-                        <input type="text" value="<?= htmlspecialchars($exam) ?>" class="form-input" disabled>
-                    </div>
+                    <form id="profile-form" onsubmit="updateProfile(event)">
+                        <div class="form-group">
+                            <label>Adınız Soyadınız</label>
+                            <input type="text" id="prof-name" value="<?= htmlspecialchars($userInfo['full_name']) ?>" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label>E-posta Adresi</label>
+                            <input type="email" id="prof-email" value="<?= htmlspecialchars($userInfo['email']) ?>" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Telefon Numarası</label>
+                            <input type="text" id="prof-phone" value="<?= htmlspecialchars($userInfo['phone'] ?? '') ?>" class="form-input" placeholder="0555...">
+                        </div>
+                        <div class="form-group">
+                            <label>Adres</label>
+                            <textarea id="prof-address" class="form-input" rows="3" placeholder="Siparişleriniz için teslimat adresi..."><?= htmlspecialchars($userInfo['address'] ?? '') ?></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Yeni Şifre (Boş bırakırsanız değişmez)</label>
+                            <input type="password" id="prof-password" class="form-input" placeholder="******">
+                        </div>
+                        <div class="form-group">
+                            <label>Hedef Sınav</label>
+                            <select id="prof-exam" class="form-input">
+                                <option value="YKS" <?= $userInfo['target_exam'] == 'YKS' ? 'selected' : '' ?>>YKS</option>
+                                <option value="ALES" <?= $userInfo['target_exam'] == 'ALES' ? 'selected' : '' ?>>ALES</option>
+                                <option value="KPSS" <?= $userInfo['target_exam'] == 'KPSS' ? 'selected' : '' ?>>KPSS</option>
+                            </select>
+                        </div>
+                        <div id="prof-alert" class="text-sm mt-2 mb-2" style="display:none;"></div>
+                        <button type="submit" class="btn btn-primary w-100"><i class="fa-solid fa-save"></i> Bilgileri Güncelle</button>
+                    </form>
                 </div>
             </section>
 

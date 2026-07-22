@@ -438,7 +438,7 @@ async function finishExam() {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ 
-                topic, difficulty, questions: examQuestions, userAnswers
+                topic, difficulty, questions: examQuestions, userAnswers, timeElapsed
             })
         });
         const data = await response.json();
@@ -462,5 +462,58 @@ async function finishExam() {
 function resetExam() {
     document.getElementById("exam-result").style.display = "none";
     document.getElementById("exam-setup").style.display = "block";
-    document.getElementById("start-exam-btn").innerHTML = `<i class="fa-solid fa-play"></i> Sınavı Başlat (5 Soru)`;
+    document.getElementById("start-exam-btn").innerHTML = `<i class="fa-solid fa-play"></i> Sınavı Başlat (30 Soru)`;
+}
+
+// --- PROFILE MODULE LOGIC ---
+async function updateProfile(event) {
+    event.preventDefault();
+    const btn = event.target.querySelector('button[type="submit"]');
+    const alertBox = document.getElementById('prof-alert');
+    
+    btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Kaydediliyor...`;
+    btn.disabled = true;
+    alertBox.style.display = 'none';
+
+    const payload = {
+        name: document.getElementById('prof-name').value,
+        email: document.getElementById('prof-email').value,
+        phone: document.getElementById('prof-phone').value,
+        address: document.getElementById('prof-address').value,
+        password: document.getElementById('prof-password').value,
+        exam: document.getElementById('prof-exam').value
+    };
+
+    try {
+        const response = await fetch('api_user.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        const data = await response.json();
+
+        if (data.error) throw new Error(data.error);
+
+        alertBox.style.display = 'block';
+        alertBox.className = 'text-sm mt-2 mb-2 p-2 rounded';
+        alertBox.style.backgroundColor = 'rgba(16, 185, 129, 0.1)';
+        alertBox.style.color = '#10b981';
+        alertBox.innerText = 'Profiliniz başarıyla güncellendi!';
+        
+        // Update name in UI
+        document.querySelector('.profile-chip span').innerText = payload.name;
+        document.querySelector('#dashboard h1 .text-primary').innerText = payload.name;
+        
+        document.getElementById('prof-password').value = ''; // clear password
+
+    } catch (err) {
+        alertBox.style.display = 'block';
+        alertBox.className = 'text-sm mt-2 mb-2 p-2 rounded';
+        alertBox.style.backgroundColor = 'rgba(239, 68, 68, 0.1)';
+        alertBox.style.color = '#ef4444';
+        alertBox.innerText = err.message;
+    } finally {
+        btn.innerHTML = `<i class="fa-solid fa-save"></i> Bilgileri Güncelle`;
+        btn.disabled = false;
+    }
 }
