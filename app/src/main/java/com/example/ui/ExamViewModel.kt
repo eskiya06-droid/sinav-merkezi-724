@@ -122,10 +122,10 @@ class ExamViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     // --- Onboarding / Profile ---
-    fun registerUser(username: String, identifier: String, passwordHash: String, targetExam: String, field: String) {
+    fun registerUser(username: String, identifier: String, passwordHash: String) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.updateProfile(
-                UserProfile(username = username, identifier = identifier, passwordHash = passwordHash, targetExam = targetExam, field = field)
+                UserProfile(username = username, identifier = identifier, passwordHash = passwordHash, targetExam = "Belirtilmedi", field = "Belirtilmedi")
             )
             _currentScreen.value = AppScreen.DASHBOARD
         }

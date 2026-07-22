@@ -178,8 +178,8 @@ fun MainContent(viewModel: ExamViewModel) {
             when (currentScreen) {
                 AppScreen.ONBOARDING -> {
                     AuthScreen(
-                        onRegister = { name, identifier, pass, exam, field ->
-                            viewModel.registerUser(name, identifier, pass, exam, field)
+                        onRegister = { name, identifier, pass ->
+                            viewModel.registerUser(name, identifier, pass)
                         },
                         onLogin = { identifier, pass ->
                             viewModel.loginUser(identifier, pass)
