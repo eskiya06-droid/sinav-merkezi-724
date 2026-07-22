@@ -57,7 +57,7 @@ class ExamViewModel(application: Application) : AndroidViewModel(application) {
 
     private val db = AppDatabase.getDatabase(application)
     private val repository = ExamRepository(db)
-    private val geminiService = NvidiaNimService()
+    private val nvidiaNimService = NvidiaNimService()
 
     // --- State Flows ---
     val userProfile: StateFlow<UserProfile?> = repository.userProfile
@@ -193,7 +193,7 @@ class ExamViewModel(application: Application) : AndroidViewModel(application) {
             val profile = repository.getProfile() ?: UserProfile(username = "Öğrenci", identifier = "demo@demo.com", passwordHash = "123", targetExam = "TYT", field = "Sayısal")
             
             try {
-                val questions = geminiService.generateQuestions(
+                val questions = nvidiaNimService.generateQuestions(
                     lesson = lesson,
                     topic = topic,
                     count = count,
@@ -232,8 +232,8 @@ class ExamViewModel(application: Application) : AndroidViewModel(application) {
                 val lesson1 = "Matematik"
                 val lesson2 = if (profile.field == "Sayısal") "Fen Bilimleri" else "Türkçe"
                 
-                val q1 = geminiService.generateQuestions(lesson1, "Genel Karışık", totalQuestionsCount / 2, profile.targetExam, profile.field)
-                val q2 = geminiService.generateQuestions(lesson2, "Genel Karışık", totalQuestionsCount / 2, profile.targetExam, profile.field)
+                val q1 = nvidiaNimService.generateQuestions(lesson1, "Genel Karışık", totalQuestionsCount / 2, profile.targetExam, profile.field)
+                val q2 = nvidiaNimService.generateQuestions(lesson2, "Genel Karışık", totalQuestionsCount / 2, profile.targetExam, profile.field)
                 
                 val combined = q1 + q2
 
@@ -371,7 +371,7 @@ class ExamViewModel(application: Application) : AndroidViewModel(application) {
             _isGeneratingExplanation.value = true
             _activeExplanation.value = null
             try {
-                val explanation = geminiService.explainMistake(
+                val explanation = nvidiaNimService.explainMistake(
                     questionText = question.questionText,
                     options = listOf(question.optionA, question.optionB, question.optionC, question.optionD),
                     correctAnswer = question.correctAnswer,
@@ -392,7 +392,7 @@ class ExamViewModel(application: Application) : AndroidViewModel(application) {
             _isGeneratingExplanation.value = true
             _activeExplanation.value = null
             try {
-                val explanation = geminiService.explainMistake(
+                val explanation = nvidiaNimService.explainMistake(
                     questionText = question.questionText,
                     options = listOf(question.optionA, question.optionB, question.optionC, question.optionD),
                     correctAnswer = question.correctAnswer,
@@ -425,7 +425,7 @@ class ExamViewModel(application: Application) : AndroidViewModel(application) {
             try {
                 val profile = repository.getProfile() ?: return@launch
                 val history = repository.examHistoryList.stateIn(viewModelScope).value
-                val report = geminiService.generateAnalysisReport(profile, history)
+                val report = nvidiaNimService.generateAnalysisReport(profile, history)
                 _aiReportText.value = report
             } catch (e: Exception) {
                 _aiReportText.value = "Analiz raporu oluşturulamadı. Lütfen sınav çözdükten sonra tekrar deneyin."
@@ -455,7 +455,7 @@ class ExamViewModel(application: Application) : AndroidViewModel(application) {
                     )
                 }
 
-                val reply = geminiService.chatWithTeacher(
+                val reply = nvidiaNimService.chatWithTeacher(
                     chatHistory = apiHistory,
                     userMessage = text,
                     profile = profile
