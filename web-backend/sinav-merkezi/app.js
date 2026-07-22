@@ -152,10 +152,10 @@ async function sendMessage() {
     }
 
     const payload = {
-        model: selectedBase64 ? "meta/llama-3.2-90b-vision-instruct" : "meta/llama-3.1-70b-instruct",
+        model: selectedBase64 ? "meta/llama-3.2-90b-vision-instruct" : "meta/llama-3.1-8b-instruct",
         messages: messages,
         temperature: 0.7,
-        max_tokens: 1024
+        max_tokens: 512
     };
 
     // Reset base64
