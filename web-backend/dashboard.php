@@ -273,8 +273,15 @@ $totalTimeStr = $totalTimeHours > 0 ? "$totalTimeHours Saat" : "$totalTimeMins D
                         </div>
                     </div>
                     
-                    <div class="text-center mt-6">
+                    <div class="text-center mt-6" style="display: flex; gap: 10px; justify-content: center;">
+                        <button class="btn btn-primary" onclick="showWrongAnswers()"><i class="fa-solid fa-list-check"></i> Yanlışları Gözden Geçir</button>
                         <button class="btn-outline" onclick="resetExam()">Yeni Sınav Başlat</button>
+                    </div>
+
+                    <!-- Wrong Answers Container -->
+                    <div id="wrong-answers-container" style="display: none; margin-top: 20px;" class="bento-card">
+                        <h3 style="margin-bottom: 15px; border-bottom: 1px solid var(--border); padding-bottom: 10px;"><i class="fa-solid fa-triangle-exclamation" style="color:var(--danger)"></i> Yanlış Yapılan Sorular</h3>
+                        <div id="wrong-answers-list"></div>
                     </div>
                 </div>
 

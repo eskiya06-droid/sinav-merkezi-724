@@ -517,3 +517,71 @@ async function updateProfile(event) {
         btn.disabled = false;
     }
 }
+
+// --- WRONG ANSWERS REVIEW LOGIC ---
+function showWrongAnswers() {
+    const container = document.getElementById("wrong-answers-container");
+    const list = document.getElementById("wrong-answers-list");
+    
+    if (container.style.display === "block") {
+        container.style.display = "none";
+        return;
+    }
+    
+    let html = "";
+    const letters = ["A", "B", "C", "D", "E"];
+    let hasWrong = false;
+    
+    examQuestions.forEach((q, idx) => {
+        const uAns = userAnswers[idx];
+        const cAns = q.correct_index;
+        
+        if (uAns !== cAns) {
+            hasWrong = true;
+            html += `
+            <div style="margin-bottom: 20px; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 8px; border: 1px solid var(--border);">
+                <p style="font-weight: 500; margin-bottom: 10px;">Soru ${idx + 1}: ${q.question}</p>
+                <div style="font-size: 14px; margin-bottom: 12px;">
+                    <div style="color: var(--danger); margin-bottom: 4px;">
+                        <i class="fa-solid fa-xmark"></i> Sizin Cevabınız: ${uAns !== null ? letters[uAns] + ") " + q.options[uAns] : "Boş Bırakıldı"}
+                    </div>
+                    <div style="color: var(--success);">
+                        <i class="fa-solid fa-check"></i> Doğru Cevap: ${letters[cAns] + ") " + q.options[cAns]}
+                    </div>
+                </div>
+                <button class="btn-outline" style="font-size: 13px; padding: 6px 12px;" onclick="askAIToSolve(${idx})">
+                    <i class="fa-solid fa-robot"></i> Yapay Zekaya Çözdür
+                </button>
+            </div>`;
+        }
+    });
+    
+    if (!hasWrong) {
+        html = "<p class='text-muted'>Harika! Tüm soruları doğru cevapladınız.</p>";
+    }
+    
+    list.innerHTML = html;
+    container.style.display = "block";
+    container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function askAIToSolve(qIdx) {
+    const q = examQuestions[qIdx];
+    const letters = ["A", "B", "C", "D", "E"];
+    let promptText = `Şu sorunun çözümünü adım adım detaylıca anlatır mısın?\n\nSoru: ${q.question}\nŞıklar:\n`;
+    
+    q.options.forEach((opt, i) => {
+        promptText += `${letters[i]}) ${opt}\n`;
+    });
+    promptText += `\nDoğru Cevap: ${letters[q.correct_index]}`;
+    
+    // Switch to Chat tab
+    switchTab('chat');
+    
+    // Set input and trigger send
+    const inputField = document.getElementById("chat-input");
+    inputField.value = promptText;
+    
+    // Simulate send button click to trigger standard chat flow
+    sendMessage();
+}

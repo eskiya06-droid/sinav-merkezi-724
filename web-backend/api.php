@@ -105,11 +105,13 @@ $apiKey = "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
 $baseUrl = "https://integrate.api.nvidia.com/v1/chat/completions";
 
 if ($action === 'generate_exam') {
+    $targetExam = $_SESSION['target_exam'] ?? 'YKS';
     // 30 questions is too large for a single Llama 8B output (causes JSON truncation).
     // We split it into 3 parallel requests of 10 questions each.
-    $userPromptBatch = "Konu: $topic, Zorluk: $difficulty. Lütfen 10 adet çoktan seçmeli (A,B,C,D,E) kısa ve net soru üret. Format MUST be exactly:\n{\n\"questions\": [\n{\n\"question\": \"Kısa soru metni...\",\n\"options\": [\"A\",\"B\",\"C\",\"D\",\"E\"],\n\"correct_index\": 2\n}\n]\n}";
+    $userPromptBatch = "Hedef Sınav: $targetExam, Konu: $topic, Zorluk: $difficulty. Lütfen 10 adet çoktan seçmeli (A,B,C,D,E) kısa ve net soru üret. Soruları TAMAMEN $targetExam müfredatına ve standartlarına uygun hazırla. ÇOK ÖNEMLİ KURAL: Her soru birbirinden tamamen benzersiz olmalı, asla daha önce sorduğun klasik soruları tekrar etme! Format MUST be exactly:\n{\n\"questions\": [\n{\n\"question\": \"Kısa soru metni...\",\n\"options\": [\"A\",\"B\",\"C\",\"D\",\"E\"],\n\"correct_index\": 2\n}\n]\n}";
     $payload['messages'][1]['content'] = $userPromptBatch;
     $payload['max_tokens'] = 3000;
+    $payload['temperature'] = 0.85; // Increase creativity to avoid repetition
 
     $mh = curl_multi_init();
     $ch_array = [];
