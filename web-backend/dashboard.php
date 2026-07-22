@@ -196,10 +196,10 @@ $exam = $_SESSION['target_exam'];
                             <option value="Zor">Zor (İleri Seviye)</option>
                         </select>
                     </div>
-                    <button class="btn-primary w-full mt-4" id="start-exam-btn" onclick="startAIExam()">
-                        <i class="fa-solid fa-play"></i> Sınavı Başlat (5 Soru)
+                    <button class="btn btn-primary w-100" id="start-exam-btn" onclick="startAIExam()">
+                        <i class="fa-solid fa-play"></i> Sınavı Başlat (30 Soru)
                     </button>
-                    <p class="text-center text-muted text-sm mt-4">Sınav soruları anlık olarak NVIDIA AI tarafından özel üretilecektir. Lütfen başlatınca 5-10 saniye bekleyin.</p>
+                    <p class="text-center text-muted text-sm mt-4">Sınav sorularınız Kitap724.com tarafından otomatik hazırlanıyor lütfen bekleyiniz...</p>
                 </div>
 
                 <!-- Exam Interface (Hidden initially) -->

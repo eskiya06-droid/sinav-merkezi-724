@@ -305,8 +305,7 @@ async function startAIExam() {
     const topic = document.getElementById("exam-topic").value;
     const difficulty = document.getElementById("exam-difficulty").value;
     const btn = document.getElementById("start-exam-btn");
-    
-    btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Sınav Hazırlanıyor (Bu işlem 1-2 dakika sürebilir)...`;
+    btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Sınavınız Kitap724.com tarafından hazırlanıyor...`;
     btn.disabled = true;
 
     try {

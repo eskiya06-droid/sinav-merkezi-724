@@ -30,8 +30,8 @@ if ($action === 'generate_exam') {
     $topic = $input['topic'] ?? 'Genel Kültür';
     $difficulty = $input['difficulty'] ?? 'Orta';
     
-    $systemPrompt = "Sen uzman bir öğretmensin. Çıktın SADECE geçerli bir JSON objesi olmalıdır. Başka hiçbir açıklama yazma. JSON içinde ASLA gerçek satır atlama (Enter) kullanma, gerekirse \\n kullan. Trailing comma kullanma.";
-    $userPrompt = "Konu: $topic, Zorluk: $difficulty. Lütfen 30 adet çoktan seçmeli (A,B,C,D,E) soru üret. Format MUST be exactly:\n{\n\"questions\": [\n{\n\"question\": \"Soru metni...\",\n\"options\": [\"A şıkkı\",\"B\",\"C\",\"D\",\"E\"],\n\"correct_index\": 2\n}\n]\n}";
+    $systemPrompt = "Sen uzman bir öğretmensin. Çıktın SADECE geçerli bir JSON objesi olmalıdır. Başka hiçbir açıklama yazma. JSON içinde ASLA gerçek satır atlama (Enter) kullanma, gerekirse \\n kullan. Trailing comma kullanma. HIZLI OLMAK İÇİN SORULARI KISA VE ÖZ TUT.";
+    $userPrompt = "Konu: $topic, Zorluk: $difficulty. Lütfen 30 adet çoktan seçmeli (A,B,C,D,E) kısa ve net soru üret. Format MUST be exactly:\n{\n\"questions\": [\n{\n\"question\": \"Kısa soru metni...\",\n\"options\": [\"A\",\"B\",\"C\",\"D\",\"E\"],\n\"correct_index\": 2\n}\n]\n}";
     
     $payload = [
         "model" => "meta/llama-3.1-8b-instruct",
