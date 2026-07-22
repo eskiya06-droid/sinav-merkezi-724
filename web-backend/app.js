@@ -149,6 +149,11 @@ function appendMessage(sender, text, imageBase64 = null) {
     
     const iconClass = sender === 'user' ? 'fa-user' : 'fa-robot';
     
+    // Pre-process: If AI accidentally puts SVG in markdown code block, extract the SVG to render natively
+    if (sender === 'ai') {
+        text = text.replace(/```(?:xml|svg|html)?\s*(<svg[\s\S]*?<\/svg>)\s*```/gi, '$1');
+    }
+    
     let htmlContent = sender === 'ai' ? marked.parse(text) : text;
     
     // Show image in chat if provided
@@ -212,7 +217,7 @@ async function sendMessage() {
     fileIndicator.style.display = 'none';
     fileUpload.value = '';
 
-    const systemPrompt = "Sen Sınav Merkezi 724 web platformunun resmi yapay zeka öğretmenisin. Sana verilen soruları çöz ve öğrenciye kibarca anlat. Cevapları markdown formatında ver. ÖNEMLİ KURAL: Sen sadece bir metin modelisin, asla resim, fotoğraf veya görsel ÇİZEMEZSİN/ÜRETEMEZSİN. Eğer kullanıcı resimli soru isterse, sadece metin ve formüllerle soru üretebileceğini belirt.";
+    const systemPrompt = "Sen Sınav Merkezi 724 web platformunun resmi yapay zeka öğretmenisin. Sana verilen soruları çöz ve öğrenciye kibarca anlat. Cevapları markdown formatında ver. ÖNEMLİ KURAL: Kullanıcı senden geometrik veya matematiksel bir ŞEKİL, GRAFİK veya RESİMLİ SORU çizmeni isterse; soruyu yazdıktan sonra mutlaka HTML <svg> etiketlerini kullanarak profesyonel, renkli ve net bir vektörel çizim kodu üret. Çizimi açıklamanın içine göm. SVG kodunu yazarken etrafına ```xml veya ```svg GİBİ markdown (kod) blokları KESİNLİKLE KOYMA! Sadece doğrudan <svg width=\"400\" height=\"400\" ...> ... </svg> şeklinde yaz. Böylece sistem bunu doğrudan gerçek bir resme dönüştürecektir.";
     
     let messages = [
         { role: "system", content: systemPrompt },
