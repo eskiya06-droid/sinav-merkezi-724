@@ -493,7 +493,7 @@ class ExamViewModel(application: Application) : AndroidViewModel(application) {
             Doğru Cevap: ${question.correctAnswer}
         """.trimIndent()
         
-        _currentScreen.value = AppScreen.AI_CHAT
+        _currentScreen.value = AppScreen.AI_TEACHER
         sendChatMessage(promptText, null)
     }
 }

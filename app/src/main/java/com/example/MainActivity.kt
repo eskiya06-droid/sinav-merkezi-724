@@ -257,7 +257,7 @@ fun MainContent(viewModel: ExamViewModel) {
                         ExamResultScreen(
                             history = h,
                             questions = lastSolvedQuestions,
-                            onExplainQuestion = { q -> viewModel.explainQuestionText(q) },
+                            onExplainQuestion = { q -> viewModel.askAIToSolveInChat(q) },
                             onDashboard = { viewModel.navigateTo(AppScreen.DASHBOARD) }
                         )
                     }
