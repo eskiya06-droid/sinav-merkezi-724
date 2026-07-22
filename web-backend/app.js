@@ -119,6 +119,29 @@ if(fileUpload) {
     });
 }
 
+window.speakText = function(btn, rawText) {
+    if (window.speechSynthesis.speaking) {
+        window.speechSynthesis.cancel();
+        // Reset all buttons
+        document.querySelectorAll('.tts-btn').forEach(b => b.innerHTML = '<i class="fa-solid fa-volume-high"></i> Sesli Dinle');
+        return;
+    }
+    
+    // Strip markdown for better speech
+    const cleanText = rawText.replace(/[#*`_\[\]]/g, '');
+    
+    const utterance = new SpeechSynthesisUtterance(cleanText);
+    utterance.lang = 'tr-TR';
+    utterance.rate = 1.0;
+    
+    utterance.onend = () => {
+        btn.innerHTML = '<i class="fa-solid fa-volume-high"></i> Sesli Dinle';
+    };
+    
+    btn.innerHTML = '<i class="fa-solid fa-stop"></i> Durdur';
+    window.speechSynthesis.speak(utterance);
+}
+
 function appendMessage(sender, text, imageBase64 = null) {
     if(!messagesContainer) return;
     const msgDiv = document.createElement('div');
@@ -133,9 +156,22 @@ function appendMessage(sender, text, imageBase64 = null) {
         htmlContent = `<img src="${imageBase64}" style="max-width: 100%; border-radius: 8px; margin-bottom: 8px;"><br>` + htmlContent;
     }
     
+    let ttsButton = '';
+    if (sender === 'ai' && text !== 'Düşünüyor...' && !text.includes('Hata:')) {
+        const escapedText = encodeURIComponent(text);
+        ttsButton = `<div style="margin-top: 12px; border-top: 1px solid var(--border); padding-top: 8px;">
+            <button class="btn-outline tts-btn" style="padding: 4px 12px; font-size: 12px; border-radius: 20px;" onclick="speakText(this, decodeURIComponent('${escapedText}'))">
+                <i class="fa-solid fa-volume-high"></i> Sesli Dinle
+            </button>
+        </div>`;
+    }
+    
     msgDiv.innerHTML = `
         <div class="avatar"><i class="fa-solid ${iconClass}"></i></div>
-        <div class="content">${htmlContent}</div>
+        <div class="content">
+            ${htmlContent}
+            ${ttsButton}
+        </div>
     `;
     messagesContainer.appendChild(msgDiv);
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
