@@ -10,10 +10,9 @@ import com.example.data.ExamRepository
 import com.example.data.SolvedQuestion
 import com.example.data.UserProfile
 import com.example.data.MistakeQuestion
-import com.example.network.Content
-import com.example.network.GeminiService
+import com.example.network.NvidiaNimService
+import com.example.network.NvidiaChatMessage
 import com.example.network.GeneratedQuestion
-import com.example.network.Part
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -58,7 +57,7 @@ class ExamViewModel(application: Application) : AndroidViewModel(application) {
 
     private val db = AppDatabase.getDatabase(application)
     private val repository = ExamRepository(db)
-    private val geminiService = GeminiService()
+    private val geminiService = NvidiaNimService()
 
     // --- State Flows ---
     val userProfile: StateFlow<UserProfile?> = repository.userProfile
@@ -450,7 +449,10 @@ class ExamViewModel(application: Application) : AndroidViewModel(application) {
                 
                 // Map local chat message structure to Gemini API Content/Part structure
                 val apiHistory = _chatMessages.value.dropLast(1).map { msg ->
-                    Content(parts = listOf(Part(text = "${if (msg.sender == "User") "Öğrenci" else "Öğretmen"}: ${msg.text}")))
+                    NvidiaChatMessage(
+                        role = if (msg.sender == "User") "user" else "assistant",
+                        content = msg.text
+                    )
                 }
 
                 val reply = geminiService.chatWithTeacher(
