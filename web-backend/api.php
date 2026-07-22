@@ -130,13 +130,22 @@ if (curl_errno($ch)) {
         $respDecoded = json_decode($response, true);
         if (isset($respDecoded['choices'][0]['message']['content'])) {
             $content = $respDecoded['choices'][0]['message']['content'];
-            // Strip any accidental markdown
-            $content = str_replace('```json', '', $content);
-            $content = str_replace('```', '', $content);
-            $jsonParsed = json_decode(trim($content), true);
-            if ($jsonParsed) {
-                http_response_code(200);
-                echo json_encode($jsonParsed);
+            
+            // Extract JSON block using substring (bypassing AI conversational text)
+            $startPos = strpos($content, '{');
+            $endPos = strrpos($content, '}');
+            
+            if ($startPos !== false && $endPos !== false) {
+                $jsonStr = substr($content, $startPos, $endPos - $startPos + 1);
+                $jsonParsed = json_decode($jsonStr, true);
+                
+                if ($jsonParsed) {
+                    http_response_code(200);
+                    echo json_encode($jsonParsed);
+                } else {
+                    http_response_code(500);
+                    echo json_encode(['error' => 'AI JSON üretti ancak format hatalı.', 'raw' => $content]);
+                }
             } else {
                 http_response_code(500);
                 echo json_encode(['error' => 'AI geçerli bir JSON üretemedi.', 'raw' => $content]);
