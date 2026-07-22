@@ -100,26 +100,11 @@ if ($action === 'generate_exam') {
 $apiKey = "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";
 $baseUrl = "https://integrate.api.nvidia.com/v1/chat/completions";
 
-$action = $_GET['action'] ?? '';
-
-if ($action !== 'chat' && $action !== 'vision') {
-    echo json_encode(['error' => 'Invalid action']);
-    exit;
-}
-
-$inputJSON = file_get_contents('php://input');
-$inputData = json_decode($inputJSON, true);
-
-if (!$inputData) {
-    echo json_encode(['error' => 'Invalid JSON input']);
-    exit;
-}
-
 // Initialize cURL
 $ch = curl_init($baseUrl);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_POST, true);
-curl_setopt($ch, CURLOPT_POSTFIELDS, $inputJSON);
+curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
 curl_setopt($ch, CURLOPT_HTTPHEADER, [
     "Authorization: Bearer $apiKey",
     "Content-Type: application/json",
