@@ -48,7 +48,6 @@ import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.Science
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.window.Dialog
 import com.example.data.ExamHistory
 import com.example.data.SolvedQuestion
@@ -687,7 +686,7 @@ fun Modifier.coloredGlow(
     val transparentColor = android.graphics.Color.toArgb(color.copy(alpha = 0.0f).value.toLong())
     val shadowColor = android.graphics.Color.toArgb(color.copy(alpha = alpha).value.toLong())
     drawIntoCanvas {
-        val paint = Paint()
+        val paint = androidx.compose.ui.graphics.Paint()
         val frameworkPaint = paint.asFrameworkPaint()
         frameworkPaint.color = transparentColor
         frameworkPaint.setShadowLayer(
