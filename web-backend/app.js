@@ -212,7 +212,7 @@ async function sendMessage() {
     fileIndicator.style.display = 'none';
     fileUpload.value = '';
 
-    const systemPrompt = "Sen Sınav Merkezi 724 web platformunun resmi yapay zeka öğretmenisin. Sana verilen soruları çöz ve öğrenciye kibarca anlat. Cevapları markdown formatında ver.";
+    const systemPrompt = "Sen Sınav Merkezi 724 web platformunun resmi yapay zeka öğretmenisin. Sana verilen soruları çöz ve öğrenciye kibarca anlat. Cevapları markdown formatında ver. ÖNEMLİ KURAL: Sen sadece bir metin modelisin, asla resim, fotoğraf veya görsel ÇİZEMEZSİN/ÜRETEMEZSİN. Eğer kullanıcı resimli soru isterse, sadece metin ve formüllerle soru üretebileceğini belirt.";
     
     let messages = [
         { role: "system", content: systemPrompt },
@@ -242,6 +242,8 @@ async function sendMessage() {
         model: imgCache ? "meta/llama-3.2-90b-vision-instruct" : "meta/llama-3.1-8b-instruct",
         messages: messages,
         temperature: 0.7,
+        presence_penalty: 0.6,
+        frequency_penalty: 0.6,
         max_tokens: 1024 // give enough tokens for vision
     };
 
