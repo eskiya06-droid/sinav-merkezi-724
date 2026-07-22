@@ -272,8 +272,11 @@ class NvidiaNimService {
                     lesson = lesson,
                     topic = topic,
                     questionText = "Bu otomatik üretilmiş yedek sorudur. $topic konusunda AI bağlantısı kurulamadığında çevrimdışı çalışabilmeniz için eklenmiştir. Soru $i:",
-                    options = listOf("Seçenek A", "Seçenek B", "Seçenek C", "Seçenek D"),
-                    answer = "Seçenek A",
+                    optionA = "Seçenek A",
+                    optionB = "Seçenek B",
+                    optionC = "Seçenek C",
+                    optionD = "Seçenek D",
+                    correctAnswer = "A",
                     explanation = "Çevrimdışı modda otomatik açıklamadır.",
                     drawingCommands = null
                 )
