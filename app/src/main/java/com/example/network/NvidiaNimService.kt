@@ -134,7 +134,7 @@ class NvidiaNimService {
     /**
      * Explains why a user's answer is wrong and the correct solution.
      */
-    suspend fun explainQuestion(
+    suspend fun explainMistake(
         questionText: String,
         options: List<String>,
         correctAnswer: String,
