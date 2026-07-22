@@ -436,10 +436,11 @@ class ExamViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     // --- AI Teacher Chat ---
-    fun sendChatMessage(text: String) {
-        if (text.trim().isEmpty()) return
+    fun sendChatMessage(text: String, imageBase64: String? = null) {
+        if (text.trim().isEmpty() && imageBase64 == null) return
         
-        val userMsg = ChatMessage("User", text)
+        val displayMessage = if (imageBase64 != null && text.isBlank()) "[Görsel eklendi]" else text
+        val userMsg = ChatMessage("User", displayMessage)
         _chatMessages.value = _chatMessages.value + userMsg
         _isSendingChatMessage.value = true
 
@@ -447,7 +448,7 @@ class ExamViewModel(application: Application) : AndroidViewModel(application) {
             try {
                 val profile = repository.getProfile() ?: UserProfile(username = "Öğrenci", identifier = "demo@demo.com", passwordHash = "123", targetExam = "TYT", field = "Sayısal")
                 
-                // Map local chat message structure to Gemini API Content/Part structure
+                // Map local chat message structure to API Content/Part structure
                 val apiHistory = _chatMessages.value.dropLast(1).map { msg ->
                     NvidiaChatMessage(
                         role = if (msg.sender == "User") "user" else "assistant",
@@ -457,7 +458,8 @@ class ExamViewModel(application: Application) : AndroidViewModel(application) {
 
                 val reply = nvidiaNimService.chatWithTeacher(
                     chatHistory = apiHistory,
-                    userMessage = text,
+                    userMessage = text.ifBlank { "Bu görseli analiz et." },
+                    imageBase64 = imageBase64,
                     profile = profile
                 )
 

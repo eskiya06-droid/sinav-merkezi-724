@@ -281,7 +281,7 @@ fun MainContent(viewModel: ExamViewModel) {
                     AITeacherScreen(
                         messages = chatMessages,
                         isSending = isSendingChatMessage,
-                        onSendMessage = { text -> viewModel.sendChatMessage(text) },
+                        onSendMessage = { text, imageBase64 -> viewModel.sendChatMessage(text, imageBase64) },
                         onResetChat = { viewModel.resetChat() },
                         onBack = { viewModel.navigateTo(AppScreen.DASHBOARD) }
                     )

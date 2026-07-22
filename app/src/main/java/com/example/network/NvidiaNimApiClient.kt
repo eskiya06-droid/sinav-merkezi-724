@@ -26,6 +26,30 @@ data class ResponseFormat(
     val type: String
 )
 
+data class ContentPart(
+    val type: String, // "text" or "image_url"
+    val text: String? = null,
+    val image_url: ImageUrl? = null
+)
+
+data class ImageUrl(
+    val url: String // "data:image/jpeg;base64,..."
+)
+
+data class NvidiaVisionChatMessage(
+    val role: String,
+    val content: List<ContentPart>
+)
+
+data class VisionChatCompletionRequest(
+    val model: String,
+    val messages: List<NvidiaVisionChatMessage>,
+    val temperature: Float = 0.7f,
+    @Json(name = "max_tokens") val maxTokens: Int = 1024,
+    val top_p: Float = 1.0f,
+    val stream: Boolean = false
+)
+
 data class ChatCompletionRequest(
     val model: String,
     val messages: List<NvidiaChatMessage>,
@@ -64,6 +88,12 @@ interface NvidiaApiService {
         @Header("Authorization") authHeader: String,
         @Body request: ChatCompletionRequest
     ): ChatCompletionResponse
+
+    @POST("chat/completions")
+    suspend fun generateVisionContent(
+        @Header("Authorization") authHeader: String,
+        @Body request: VisionChatCompletionRequest
+    ): ChatCompletionResponse
 }
 
 // ---------------------------------------------------------
@@ -78,9 +108,9 @@ object NvidiaNimApiClient {
         .build()
 
     private val okHttpClient = OkHttpClient.Builder()
-        .connectTimeout(60, TimeUnit.SECONDS)
-        .readTimeout(60, TimeUnit.SECONDS)
-        .writeTimeout(60, TimeUnit.SECONDS)
+        .connectTimeout(15, TimeUnit.SECONDS)
+        .readTimeout(15, TimeUnit.SECONDS)
+        .writeTimeout(15, TimeUnit.SECONDS)
         .addInterceptor(HttpLoggingInterceptor().apply {
             level = HttpLoggingInterceptor.Level.BODY
         })

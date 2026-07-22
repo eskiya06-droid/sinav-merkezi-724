@@ -2064,13 +2064,29 @@ fun MistakeBoxScreen(
 fun AITeacherScreen(
     messages: List<ChatMessage>,
     isSending: Boolean,
-    onSendMessage: (String) -> Unit,
+    onSendMessage: (String, String?) -> Unit,
     onResetChat: () -> Unit,
     onBack: () -> Unit
 ) {
     var textState by remember { mutableStateOf("") }
+    var selectedFileUri by remember { mutableStateOf<android.net.Uri?>(null) }
     val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
+    val context = androidx.compose.ui.platform.LocalContext.current
+
+    val filePickerLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
+        contract = androidx.activity.result.contract.ActivityResultContracts.GetContent()
+    ) { uri: android.net.Uri? ->
+        if (uri != null) {
+            val contentResolver = context.contentResolver
+            val mimeType = contentResolver.getType(uri) ?: ""
+            if (mimeType.startsWith("image/") || mimeType == "text/plain") {
+                selectedFileUri = uri
+            } else {
+                android.widget.Toast.makeText(context, "Lütfen Resim veya TXT yükleyin, ya da PDF/Word belgesinin ekran görüntüsünü atın.", android.widget.Toast.LENGTH_LONG).show()
+            }
+        }
+    }
 
     // Suggestions chip row list
     val suggestionChips = listOf(
@@ -2264,7 +2280,7 @@ fun AITeacherScreen(
                             .clip(RoundedCornerShape(8.dp))
                             .background(BrandSurface)
                             .border(1.dp, BrandBorder, RoundedCornerShape(8.dp))
-                            .clickable { onSendMessage(chip) }
+                            .clickable { onSendMessage(chip, null) }
                             .padding(horizontal = 12.dp, vertical = 6.dp)
                     ) {
                         Text(text = chip, color = TextLight, fontSize = 11.sp, fontWeight = FontWeight.Bold)
@@ -2281,39 +2297,73 @@ fun AITeacherScreen(
                     .padding(14.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                OutlinedTextField(
-                    value = textState,
-                    onValueChange = { textState = it },
-                    placeholder = { Text("AI Öğretmene sor...", color = TextMuted) },
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = BrandPrimary,
-                        unfocusedBorderColor = BrandBorder,
-                        focusedTextColor = TextLight,
-                        unfocusedTextColor = TextLight
-                    ),
-                    singleLine = true,
-                    modifier = Modifier
-                        .weight(1f)
-                        .testTag("chat_input")
-                )
+                IconButton(
+                    onClick = { filePickerLauncher.launch("*/*") },
+                    modifier = Modifier.size(48.dp)
+                ) {
+                    Icon(
+                        imageVector = androidx.compose.material.icons.Icons.Default.Add,
+                        contentDescription = "Dosya Ekle",
+                        tint = if (selectedFileUri != null) BrandPrimary else TextMuted
+                    )
+                }
+                Spacer(modifier = Modifier.width(4.dp))
+                
+                Column(modifier = Modifier.weight(1f)) {
+                    if (selectedFileUri != null) {
+                        Text("[Görsel/Dosya Eklendi]", color = BrandPrimary, fontSize = 10.sp, modifier = Modifier.padding(bottom = 2.dp))
+                    }
+                    OutlinedTextField(
+                        value = textState,
+                        onValueChange = { textState = it },
+                        placeholder = { Text("AI Öğretmene sor...", color = TextMuted) },
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = BrandPrimary,
+                            unfocusedBorderColor = BrandBorder,
+                            focusedTextColor = TextLight,
+                            unfocusedTextColor = TextLight
+                        ),
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth().testTag("chat_input")
+                    )
+                }
+                
                 Spacer(modifier = Modifier.width(12.dp))
                 IconButton(
                     onClick = {
-                        if (textState.trim().isNotEmpty()) {
-                            onSendMessage(textState)
+                        val isTextValid = textState.trim().isNotEmpty()
+                        val isFileValid = selectedFileUri != null
+                        if (isTextValid || isFileValid) {
+                            var base64: String? = null
+                            var textToSend = textState
+                            
+                            if (selectedFileUri != null) {
+                                val mimeType = context.contentResolver.getType(selectedFileUri!!) ?: ""
+                                if (mimeType.startsWith("image/")) {
+                                    base64 = com.example.utils.FileHelper.getBase64FromImageUri(context, selectedFileUri!!)
+                                } else if (mimeType == "text/plain") {
+                                    val txt = com.example.utils.FileHelper.getTextFromUri(context, selectedFileUri!!)
+                                    if (txt != null) {
+                                        textToSend = if (textToSend.isBlank()) txt else "$textToSend\n\n$txt"
+                                    }
+                                }
+                            }
+                            
+                            onSendMessage(textToSend, base64)
                             textState = ""
+                            selectedFileUri = null
                         }
                     },
-                    enabled = textState.trim().isNotEmpty() && !isSending,
+                    enabled = (textState.trim().isNotEmpty() || selectedFileUri != null) && !isSending,
                     modifier = Modifier
                         .size(48.dp)
                         .clip(CircleShape)
-                        .background(if (textState.trim().isNotEmpty()) BrandPrimary else BrandBorder)
+                        .background(if (textState.trim().isNotEmpty() || selectedFileUri != null) BrandPrimary else BrandBorder)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Send,
+                        imageVector = androidx.compose.material.icons.Icons.Default.Send,
                         contentDescription = "Gönder",
-                        tint = if (textState.trim().isNotEmpty()) BrandBackground else TextMuted
+                        tint = if (textState.trim().isNotEmpty() || selectedFileUri != null) BrandBackground else TextMuted
                     )
                 }
             }

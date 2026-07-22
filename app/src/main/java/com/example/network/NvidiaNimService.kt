@@ -242,6 +242,7 @@ class NvidiaNimService {
     suspend fun chatWithTeacher(
         chatHistory: List<NvidiaChatMessage>,
         userMessage: String,
+        imageBase64: String?,
         profile: UserProfile
     ): String = withContext(Dispatchers.IO) {
         val systemPrompt = """
@@ -249,16 +250,52 @@ class NvidiaNimService {
             Öğrencinin adı: ${profile.username}, hedeflediği sınav: ${profile.targetExam} ve alanı: ${profile.field}.
             
             Öğrenciyle sınav hazırlık süreçleri, ders çalışma teknikleri, zorlandığı konuların özet anlatımları veya sınav stresiyle baş etme yolları hakkında sohbet etmelisin.
+            Bunun dışında eğer öğrenci sana bir DOSYA veya GÖRSEL yolladıysa, onu analiz edip içeriği hakkında detaylı cevap vermelisin.
             Dilin daima cana yakın, destekleyici, motive edici ve bir öğretmen sabrında olmalıdır. Yanıtlarını gereksiz uzatmadan, markdown formatında düzenli ve net bir şekilde sun.
         """.trimIndent()
 
-        val messages = mutableListOf<NvidiaChatMessage>()
-        messages.add(NvidiaChatMessage("system", systemPrompt))
-        messages.addAll(chatHistory)
-        messages.add(NvidiaChatMessage("user", userMessage))
+        if (imageBase64 != null) {
+            var lastException: Exception? = null
+            val authHeader = "Bearer $apiKey"
+            
+            val visionMessages = mutableListOf<NvidiaVisionChatMessage>()
+            visionMessages.add(NvidiaVisionChatMessage("system", listOf(ContentPart("text", systemPrompt))))
+            chatHistory.forEach {
+                visionMessages.add(NvidiaVisionChatMessage(it.role, listOf(ContentPart("text", it.content))))
+            }
+            val parts = listOf(
+                ContentPart(type = "text", text = userMessage),
+                ContentPart(type = "image_url", image_url = ImageUrl(url = imageBase64))
+            )
+            visionMessages.add(NvidiaVisionChatMessage("user", parts))
 
-        executeWithFallback(teacherChatPool, messages, temperature = 0.7f)
-            ?: "Bağlantı hatası oluştu. Sorunu çözmek için çalışıyorum. Lütfen daha sonra tekrar deneyin."
+            for (modelName in visionPool) {
+                try {
+                    Log.d("NvidiaNimService", "Trying vision model: $modelName")
+                    val request = VisionChatCompletionRequest(
+                        model = modelName,
+                        messages = visionMessages,
+                        temperature = 0.7f
+                    )
+                    val response = NvidiaNimApiClient.service.generateVisionContent(authHeader, request)
+                    val content = response.choices.firstOrNull()?.message?.content
+                    if (!content.isNullOrBlank()) {
+                        return@withContext content
+                    }
+                } catch (e: Exception) {
+                    lastException = e
+                }
+            }
+            return@withContext "Resim analiz edilirken bir hata oluştu. Lütfen tekrar deneyin."
+        } else {
+            val messages = mutableListOf<NvidiaChatMessage>()
+            messages.add(NvidiaChatMessage("system", systemPrompt))
+            messages.addAll(chatHistory)
+            messages.add(NvidiaChatMessage("user", userMessage))
+
+            return@withContext executeWithFallback(teacherChatPool, messages, temperature = 0.7f)
+                ?: "Bağlantı hatası oluştu. Sorunu çözmek için çalışıyorum. Lütfen daha sonra tekrar deneyin."
+        }
     }
 
     /**
