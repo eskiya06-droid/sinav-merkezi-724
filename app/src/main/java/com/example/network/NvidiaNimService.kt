@@ -8,7 +8,8 @@ import kotlinx.coroutines.withContext
 
 class NvidiaNimService {
 
-    private val apiKey = "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"
+    // API Key is now securely stored in the XAMPP Backend (api.php)
+    private val apiKey = "backend-proxy-token"
 
     // 1. Soru Üretimi ve Mantık (JSON ve Karmaşık Müfredat)
     private val jsonLogicPool = listOf(

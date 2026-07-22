@@ -83,13 +83,13 @@ data class Usage(
 // ---------------------------------------------------------
 
 interface NvidiaApiService {
-    @POST("chat/completions")
+    @POST("api.php?action=chat")
     suspend fun generateContent(
         @Header("Authorization") authHeader: String,
         @Body request: ChatCompletionRequest
     ): ChatCompletionResponse
 
-    @POST("chat/completions")
+    @POST("api.php?action=vision")
     suspend fun generateVisionContent(
         @Header("Authorization") authHeader: String,
         @Body request: VisionChatCompletionRequest
@@ -101,7 +101,7 @@ interface NvidiaApiService {
 // ---------------------------------------------------------
 
 object NvidiaNimApiClient {
-    private const val BASE_URL = "https://integrate.api.nvidia.com/v1/"
+    private const val BASE_URL = "http://10.0.2.2/sinav-merkezi/"
 
     private val moshi = Moshi.Builder()
         .add(KotlinJsonAdapterFactory())
