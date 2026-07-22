@@ -12,6 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Analytics
 import androidx.compose.material.icons.filled.Book
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.QuestionAnswer
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -164,6 +165,19 @@ fun MainContent(viewModel: ExamViewModel) {
                             indicatorColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
                         )
                     )
+                    NavigationBarItem(
+                        selected = currentScreen == AppScreen.PROFILE,
+                        onClick = { viewModel.navigateTo(AppScreen.PROFILE) },
+                        icon = { Icon(Icons.Default.Person, contentDescription = "Profil") },
+                        label = { Text("Profil", fontSize = 11.sp) },
+                        colors = NavigationBarItemDefaults.colors(
+                            selectedIconColor = MaterialTheme.colorScheme.primary,
+                            selectedTextColor = MaterialTheme.colorScheme.primary,
+                            unselectedIconColor = TextMuted,
+                            unselectedTextColor = TextMuted,
+                            indicatorColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
+                        )
+                    )
                 }
             }
         },
@@ -254,6 +268,15 @@ fun MainContent(viewModel: ExamViewModel) {
                         onResetChat = { viewModel.resetChat() },
                         onBack = { viewModel.navigateTo(AppScreen.DASHBOARD) }
                     )
+                }
+                AppScreen.PROFILE -> {
+                    profile?.let { p ->
+                        ProfileScreen(
+                            profile = p,
+                            onSave = { exam, field -> viewModel.updateExamPreferences(exam, field) },
+                            onLogout = { viewModel.logout() }
+                        )
+                    }
                 }
             }
         }

@@ -522,6 +522,148 @@ fun AuthScreen(
     }
 }
 
+// --- Profile Screen ---
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+fun ProfileScreen(
+    profile: UserProfile,
+    onSave: (String, String) -> Unit,
+    onLogout: () -> Unit
+) {
+    var selectedExam by remember { mutableStateOf(if (profile.targetExam == "Belirtilmedi") "YKS (TYT-AYT)" else profile.targetExam) }
+    var selectedField by remember { mutableStateOf(if (profile.field == "Belirtilmedi") "Sayısal" else profile.field) }
+
+    val exams = listOf("YKS (TYT-AYT)", "LGS", "KPSS", "DGS")
+    val fields = listOf("Sayısal", "Sözel", "Eşit Ağırlık", "Genel")
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(BrandBackground)
+            .padding(horizontal = 24.dp)
+            .verticalScroll(rememberScrollState())
+    ) {
+        Spacer(modifier = Modifier.height(32.dp))
+        
+        Text(
+            text = "Profilim",
+            color = TextLight,
+            fontSize = 28.sp,
+            fontWeight = FontWeight.ExtraBold,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+        
+        Text(
+            text = "Hesap ve Sınav Ayarlarınızı Yönetin",
+            color = TextMuted,
+            fontSize = 14.sp,
+            modifier = Modifier.padding(bottom = 32.dp)
+        )
+        
+        Card(
+            colors = CardDefaults.cardColors(containerColor = BrandSurface),
+            shape = RoundedCornerShape(20.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Column(modifier = Modifier.padding(20.dp)) {
+                // User Info
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(
+                        modifier = Modifier
+                            .size(64.dp)
+                            .clip(androidx.compose.foundation.shape.CircleShape)
+                            .background(BrandPrimary.copy(alpha = 0.1f)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(Icons.Default.Person, contentDescription = "Avatar", tint = BrandPrimary, modifier = Modifier.size(32.dp))
+                    }
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Column {
+                        Text(text = profile.username, color = TextLight, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                        Text(text = profile.identifier, color = TextMuted, fontSize = 14.sp)
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(32.dp))
+
+                Text(text = "Hedeflediğiniz Sınav", color = TextLight, fontSize = 16.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 12.dp))
+                FlowRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    exams.forEach { exam ->
+                        val isSelected = selectedExam == exam
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(if (isSelected) BrandPrimary else BrandBackground)
+                                .border(1.dp, if (isSelected) BrandPrimary else BrandBorder, RoundedCornerShape(12.dp))
+                                .clickable { selectedExam = exam }
+                                .padding(horizontal = 16.dp, vertical = 10.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(text = exam, color = if (isSelected) BrandSurface else TextMuted, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Text(text = "Alanınız / Branşınız", color = TextLight, fontSize = 16.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 12.dp))
+                FlowRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    fields.forEach { field ->
+                        val isSelected = selectedField == field
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(if (isSelected) BrandPrimary else BrandBackground)
+                                .border(1.dp, if (isSelected) BrandPrimary else BrandBorder, RoundedCornerShape(12.dp))
+                                .clickable { selectedField = field }
+                                .padding(horizontal = 16.dp, vertical = 10.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(text = field, color = if (isSelected) BrandSurface else TextMuted, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                        }
+                    }
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        Button(
+            onClick = { onSave(selectedExam, selectedField) },
+            colors = ButtonDefaults.buttonColors(containerColor = BrandPrimary, contentColor = BrandSurface),
+            shape = RoundedCornerShape(16.dp),
+            modifier = Modifier.fillMaxWidth().height(56.dp)
+        ) {
+            Text("Değişiklikleri Kaydet", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        OutlinedButton(
+            onClick = onLogout,
+            colors = ButtonDefaults.outlinedButtonColors(contentColor = WrongRed),
+            border = BorderStroke(1.dp, WrongRed),
+            shape = RoundedCornerShape(16.dp),
+            modifier = Modifier.fillMaxWidth().height(56.dp)
+        ) {
+            Icon(Icons.Default.Logout, contentDescription = "Çıkış Yap", modifier = Modifier.size(20.dp))
+            Spacer(modifier = Modifier.width(8.dp))
+            Text("Çıkış Yap", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+        }
+        
+        Spacer(modifier = Modifier.height(32.dp))
+    }
+}
+
 // --- 5. Student Dashboard Screen ---
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -536,485 +678,163 @@ fun DashboardScreen(
             .fillMaxSize()
             .background(BrandBackground)
     ) {
-        LazyColumn(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 20.dp)
+                .padding(horizontal = 24.dp)
+                .verticalScroll(rememberScrollState())
         ) {
-            item {
-                Spacer(modifier = Modifier.height(28.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
-                // Welcome Header Card
-                Card(
-                    colors = CardDefaults.cardColors(containerColor = BrandSurface),
-                    border = BorderStroke(1.dp, BrandBorder),
-                    shape = RoundedCornerShape(20.dp),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Column(modifier = Modifier.padding(20.dp)) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Column {
-                                Text(
-                                    text = "Hoş Geldin, ${profile.username} 👋",
-                                    color = TextLight,
-                                    fontSize = 22.sp,
-                                    fontWeight = FontWeight.ExtraBold
-                                )
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    modifier = Modifier.padding(top = 4.dp)
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Flag,
-                                        contentDescription = "Target",
-                                        tint = BrandPrimary,
-                                        modifier = Modifier.size(16.dp)
-                                    )
-                                    Spacer(modifier = Modifier.width(4.dp))
-                                    Text(
-                                        text = "${profile.targetExam} | ${profile.field}",
-                                        color = BrandPrimary,
-                                        fontSize = 12.sp,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                }
-                            }
-                            // Trophy / Streak
-                            Box(
-                                modifier = Modifier
-                                    .clip(RoundedCornerShape(12.dp))
-                                    .background(WarningOrange.copy(alpha = 0.15f))
-                                    .border(1.dp, WarningOrange.copy(alpha = 0.4f), RoundedCornerShape(12.dp))
-                                    .padding(horizontal = 12.dp, vertical = 6.dp)
-                            ) {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Icon(
-                                        imageVector = Icons.Default.LocalFireDepartment,
-                                        contentDescription = "Streak",
-                                        tint = WarningOrange,
-                                        modifier = Modifier.size(18.dp)
-                                    )
-                                    Spacer(modifier = Modifier.width(4.dp))
-                                    Text(
-                                        text = "3 Gün",
-                                        color = WarningOrange,
-                                        fontSize = 12.sp,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                }
-                            }
-                        }
-
-                        Divider(
-                            color = BrandBorder.copy(alpha = 0.5f),
-                            modifier = Modifier.padding(vertical = 16.dp)
-                        )
-
-                        // Quick Statistics Row
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            val totalSolved = historyList.size
-                            val totalCorrect = historyList.sumOf { it.correctCount }
-                            val totalWrong = historyList.sumOf { it.wrongCount }
-                            
-                            Column {
-                                Box(modifier = Modifier) { // Wrap briefly if needed or just replace the column
-                                }
-                                Text(text = "Toplam Sınav", color = TextMuted, fontSize = 11.sp)
-                                Text(text = "$totalSolved", color = TextLight, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                            }
-                            Column {
-                                Text(text = "Doğru Soru", color = TextMuted, fontSize = 11.sp)
-                                Text(text = "$totalCorrect", color = CorrectGreen, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                            }
-                            Column {
-                                Text(text = "Hatalı Soru", color = TextMuted, fontSize = 11.sp)
-                                Text(text = "$totalWrong", color = WrongRed, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                            }
-                            Column {
-                                Text(text = "Hata Kutusu", color = TextMuted, fontSize = 11.sp)
-                                Text(text = "$mistakeCount Soru", color = WarningOrange, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                            }
-                        }
-                    }
+            // Welcome Section
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column {
+                    Text(
+                        text = "Merhaba, ${profile.username}",
+                        color = TextMuted,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Text(
+                        text = "Çalışmaya Başla 👋",
+                        color = TextLight,
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.ExtraBold
+                    )
                 }
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                // Module Title
-                Text(
-                    text = "Sınav Çalışma Modülleri",
-                    color = TextLight,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(bottom = 12.dp)
-                )
-
-                // Row of two study modules
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    // Module 1: Instant Test
-                    Card(
-                        colors = CardDefaults.cardColors(containerColor = BrandSurface),
-                        border = BorderStroke(1.dp, BrandBorder),
-                        shape = RoundedCornerShape(16.dp),
-                        modifier = Modifier
-                            .weight(1f)
-                            .clickable { onNavigate(AppScreen.TEST_CONFIG) }
-                    ) {
-                        Column(modifier = Modifier.padding(16.dp)) {
-                            Box(
-                                modifier = Modifier
-                                    .size(36.dp)
-                                    .clip(RoundedCornerShape(8.dp))
-                                    .background(BrandPrimary.copy(alpha = 0.15f)),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.OfflineBolt,
-                                    contentDescription = "Anlık Test",
-                                    tint = BrandPrimary,
-                                    modifier = Modifier.size(20.dp)
-                                )
-                            }
-                            Spacer(modifier = Modifier.height(12.dp))
-                            Text(
-                                text = "Mod 1: Konu Testi",
-                                color = TextLight,
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Text(
-                                text = "Konu belirleyin, AI anında seviyenize özel soru üretsin.",
-                                color = TextMuted,
-                                fontSize = 11.sp,
-                                modifier = Modifier.padding(top = 4.dp)
-                            )
-                        }
-                    }
-
-                    // Module 2: Full Mock Exam
-                    Card(
-                        colors = CardDefaults.cardColors(containerColor = BrandSurface),
-                        border = BorderStroke(1.dp, BrandBorder),
-                        shape = RoundedCornerShape(16.dp),
-                        modifier = Modifier
-                            .weight(1f)
-                            .clickable { onNavigate(AppScreen.ACTIVE_EXAM) } // ViewModel will handle launching custom mock directly or showing it
-                    ) {
-                        Column(modifier = Modifier.padding(16.dp)) {
-                            Box(
-                                modifier = Modifier
-                                    .size(36.dp)
-                                    .clip(RoundedCornerShape(8.dp))
-                                    .background(BrandSecondary.copy(alpha = 0.15f)),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Timer,
-                                    contentDescription = "Tam Deneme",
-                                    tint = BrandSecondary,
-                                    modifier = Modifier.size(20.dp)
-                                )
-                            }
-                            Spacer(modifier = Modifier.height(12.dp))
-                            Text(
-                                text = "Mod 2: Tam Deneme",
-                                color = TextLight,
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Text(
-                                text = "Gerçek sınav süresiyle tam simülasyon optik deneme.",
-                                color = TextMuted,
-                                fontSize = 11.sp,
-                                modifier = Modifier.padding(top = 4.dp)
-                            )
-                        }
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // AI Analysis & AI Teacher Row
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    // AI Karne Analizi
-                    Card(
-                        colors = CardDefaults.cardColors(containerColor = BrandSurface),
-                        border = BorderStroke(1.dp, BrandBorder),
-                        shape = RoundedCornerShape(16.dp),
-                        modifier = Modifier
-                            .weight(1.0f)
-                            .clickable { onNavigate(AppScreen.AI_ANALYSIS) }
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(16.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(36.dp)
-                                    .clip(RoundedCornerShape(8.dp))
-                                    .background(BrandPrimary.copy(alpha = 0.1f)),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Analytics,
-                                    contentDescription = "AI Analiz",
-                                    tint = BrandPrimary,
-                                    modifier = Modifier.size(18.dp)
-                                )
-                            }
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Column {
-                                Text(
-                                    text = "AI Karne Analizi",
-                                    color = TextLight,
-                                    fontSize = 13.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                Text(
-                                    text = "Özel karne & reçete",
-                                    color = TextMuted,
-                                    fontSize = 10.sp
-                                )
-                            }
-                        }
-                    }
-
-                    // 7/24 AI Öğretmen
-                    Card(
-                        colors = CardDefaults.cardColors(containerColor = BrandSurface),
-                        border = BorderStroke(1.dp, BrandBorder),
-                        shape = RoundedCornerShape(16.dp),
-                        modifier = Modifier
-                            .weight(1.0f)
-                            .clickable { onNavigate(AppScreen.AI_TEACHER) }
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(16.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(36.dp)
-                                    .clip(RoundedCornerShape(8.dp))
-                                    .background(BrandSecondary.copy(alpha = 0.1f)),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.QuestionAnswer,
-                                    contentDescription = "AI Öğretmen",
-                                    tint = BrandSecondary,
-                                    modifier = Modifier.size(18.dp)
-                                )
-                            }
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Column {
-                                Text(
-                                    text = "7/24 AI Öğretmen",
-                                    color = TextLight,
-                                    fontSize = 13.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                Text(
-                                    text = "Hemen sohbete başla",
-                                    color = TextMuted,
-                                    fontSize = 10.sp
-                                )
-                            }
-                        }
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                // Hata Kutusu (Yanlışlarım) Card
-                Card(
-                    colors = CardDefaults.cardColors(containerColor = BrandSurface),
-                    border = BorderStroke(1.dp, BrandBorder.copy(alpha = 0.8f)),
-                    shape = RoundedCornerShape(16.dp),
+                
+                // Target Chip
+                Box(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { onNavigate(AppScreen.MISTAKE_BOX) }
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(BrandPrimary.copy(alpha = 0.1f))
+                        .padding(horizontal = 12.dp, vertical = 6.dp)
                 ) {
-                    Row(
-                        modifier = Modifier.padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Box(
-                                modifier = Modifier
-                                    .size(40.dp)
-                                    .clip(RoundedCornerShape(10.dp))
-                                    .background(WrongRed.copy(alpha = 0.15f)),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.BookmarkBorder,
-                                    contentDescription = "Hata Kutusu",
-                                    tint = WrongRed,
-                                    modifier = Modifier.size(22.dp)
-                                )
-                            }
-                            Spacer(modifier = Modifier.width(16.dp))
-                            Column {
-                                Text(
-                                    text = "Hata Kutusu (Yanlışlarım)",
-                                    color = TextLight,
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                Text(
-                                    text = "Çözdüğün sınavlardaki tüm yanlışların burada birikir",
-                                    color = TextMuted,
-                                    fontSize = 11.sp
-                                )
-                            }
-                        }
-                        Box(
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(10.dp))
-                                .background(WrongRed.copy(alpha = 0.1f))
-                                .padding(horizontal = 12.dp, vertical = 6.dp)
-                        ) {
-                            Text(
-                                text = "$mistakeCount Soru",
-                                color = WrongRed,
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                    }
+                    Text(
+                        text = "${profile.targetExam} | ${profile.field}",
+                        color = BrandPrimary,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
+            }
 
-                Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
-                // History List Header
-                Text(
-                    text = "Son Çözülen Sınavlar ve Sonuçlar",
-                    color = TextLight,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(bottom = 12.dp)
+            // Quick Stats
+            val totalSolved = historyList.size
+            val totalCorrect = historyList.sumOf { it.correctCount }
+            val totalWrong = historyList.sumOf { it.wrongCount }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                StatCard(modifier = Modifier.weight(1f), title = "Deneme", value = "$totalSolved", color = BrandPrimary)
+                StatCard(modifier = Modifier.weight(1f), title = "Doğru", value = "$totalCorrect", color = CorrectGreen)
+                StatCard(modifier = Modifier.weight(1f), title = "Hatalı", value = "$totalWrong", color = WrongRed)
+                StatCard(modifier = Modifier.weight(1f), title = "Kutuda", value = "$mistakeCount", color = WarningOrange)
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            // Action Grid
+            Text(
+                text = "Modüller",
+                color = TextLight,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                ActionCard(
+                    modifier = Modifier.weight(1f),
+                    title = "Konu Testi",
+                    icon = Icons.Default.OfflineBolt,
+                    color = BrandPrimary,
+                    onClick = { onNavigate(AppScreen.TEST_CONFIG) }
                 )
-
-                if (historyList.isEmpty()) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 32.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Icon(
-                                imageVector = Icons.Default.School,
-                                contentDescription = "Boş",
-                                tint = TextMuted.copy(alpha = 0.5f),
-                                modifier = Modifier.size(48.dp)
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(
-                                text = "Henüz çözülmüş bir sınavınız yok.",
-                                color = TextMuted,
-                                fontSize = 13.sp
-                            )
-                            Text(
-                                text = "Hemen üstten bir anlık test başlatın!",
-                                color = BrandPrimary,
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Bold,
-                                modifier = Modifier.padding(top = 4.dp)
-                            )
-                        }
-                    }
-                }
+                ActionCard(
+                    modifier = Modifier.weight(1f),
+                    title = "Tam Deneme",
+                    icon = Icons.Default.Timer,
+                    color = BrandSecondary,
+                    onClick = { onNavigate(AppScreen.ACTIVE_EXAM) }
+                )
             }
 
-            // Historical Sınav Cards
-            items(historyList) { history ->
-                Card(
-                    colors = CardDefaults.cardColors(containerColor = BrandSurface.copy(alpha = 0.7f)),
-                    border = BorderStroke(1.dp, BrandBorder.copy(alpha = 0.5f)),
-                    shape = RoundedCornerShape(12.dp),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 10.dp)
-                ) {
-                    Row(
-                        modifier = Modifier.padding(14.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = history.title,
-                                color = TextLight,
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.Bold,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.padding(top = 4.dp)
-                            ) {
-                                Box(
-                                    modifier = Modifier
-                                        .clip(RoundedCornerShape(4.dp))
-                                        .background(if (history.examType == "Instant") BrandPrimary.copy(alpha = 0.15f) else BrandSecondary.copy(alpha = 0.15f))
-                                        .padding(horizontal = 6.dp, vertical = 2.dp)
-                                ) {
-                                    Text(
-                                        text = if (history.examType == "Instant") "Konu Testi" else "Deneme Sınavı",
-                                        color = if (history.examType == "Instant") BrandPrimary else BrandSecondary,
-                                        fontSize = 9.sp,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                }
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(
-                                    text = "Süre: ${history.durationSeconds / 60} dk ${history.durationSeconds % 60} sn",
-                                    color = TextMuted,
-                                    fontSize = 11.sp
-                                )
-                            }
-                        }
+            Spacer(modifier = Modifier.height(16.dp))
 
-                        // Correct / Wrong / Blank breakdown
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text(text = "D", color = CorrectGreen, fontSize = 10.sp, fontWeight = FontWeight.Bold)
-                                Text(text = "${history.correctCount}", color = TextLight, fontSize = 13.sp, fontWeight = FontWeight.Bold)
-                            }
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text(text = "Y", color = WrongRed, fontSize = 10.sp, fontWeight = FontWeight.Bold)
-                                Text(text = "${history.wrongCount}", color = TextLight, fontSize = 13.sp, fontWeight = FontWeight.Bold)
-                            }
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text(text = "B", color = TextMuted, fontSize = 10.sp, fontWeight = FontWeight.Bold)
-                                Text(text = "${history.blankCount}", color = TextLight, fontSize = 13.sp, fontWeight = FontWeight.Bold)
-                            }
-                        }
-                    }
-                }
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                ActionCard(
+                    modifier = Modifier.weight(1f),
+                    title = "AI Karne",
+                    icon = Icons.Default.Analytics,
+                    color = Color(0xFF673AB7),
+                    onClick = { onNavigate(AppScreen.AI_ANALYSIS) }
+                )
+                ActionCard(
+                    modifier = Modifier.weight(1f),
+                    title = "7/24 Rehber",
+                    icon = Icons.Default.QuestionAnswer,
+                    color = Color(0xFF009688),
+                    onClick = { onNavigate(AppScreen.AI_TEACHER) }
+                )
             }
 
-            item {
-                Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(24.dp))
+        }
+    }
+}
+
+@Composable
+fun StatCard(modifier: Modifier, title: String, value: String, color: Color) {
+    Card(
+        colors = CardDefaults.cardColors(containerColor = BrandSurface),
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        modifier = modifier
+    ) {
+        Column(
+            modifier = Modifier.padding(vertical = 12.dp).fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(text = value, color = color, fontSize = 20.sp, fontWeight = FontWeight.ExtraBold)
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(text = title, color = TextMuted, fontSize = 11.sp, fontWeight = FontWeight.Medium)
+        }
+    }
+}
+
+@Composable
+fun ActionCard(modifier: Modifier, title: String, icon: androidx.compose.ui.graphics.vector.ImageVector, color: Color, onClick: () -> Unit) {
+    Card(
+        colors = CardDefaults.cardColors(containerColor = BrandSurface),
+        shape = RoundedCornerShape(20.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        modifier = modifier.clickable { onClick() }.height(100.dp)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize().padding(16.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.Start
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(color.copy(alpha = 0.15f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(imageVector = icon, contentDescription = title, tint = color, modifier = Modifier.size(24.dp))
             }
+            Spacer(modifier = Modifier.height(12.dp))
+            Text(text = title, color = TextLight, fontSize = 14.sp, fontWeight = FontWeight.Bold)
         }
     }
 }

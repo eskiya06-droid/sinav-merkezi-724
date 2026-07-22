@@ -32,7 +32,8 @@ enum class AppScreen {
     EXAM_RESULT,
     AI_ANALYSIS,
     MISTAKE_BOX,
-    AI_TEACHER
+    AI_TEACHER,
+    PROFILE
 }
 
 data class ActiveExamState(
@@ -149,6 +150,23 @@ class ExamViewModel(application: Application) : AndroidViewModel(application) {
             repository.updateProfile(
                 UserProfile(username = username, identifier = identifier, passwordHash = passwordHash, targetExam = targetExam, field = field)
             )
+        }
+    }
+
+    fun updateExamPreferences(targetExam: String, field: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.getProfile()?.let { profile ->
+                repository.updateProfile(profile.copy(targetExam = targetExam, field = field))
+            }
+        }
+    }
+
+    fun logout() {
+        viewModelScope.launch(Dispatchers.IO) {
+            // Mock logout: just navigate back to ONBOARDING for now
+            // In a real app, you might clear session tokens, or even clear the DB profile if needed.
+            // But we keep the profile locally and just show the AuthScreen
+            _currentScreen.value = AppScreen.ONBOARDING
         }
     }
 
