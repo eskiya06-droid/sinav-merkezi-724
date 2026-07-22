@@ -78,7 +78,7 @@ if ($action === 'generate_exam') {
             ["role" => "user", "content" => $userPrompt]
         ],
         "temperature" => 0.7,
-        "max_tokens" => 512
+        "max_tokens" => 250
     ];
     
     // Pass context so we can save DB later
@@ -111,8 +111,8 @@ curl_setopt($ch, CURLOPT_HTTPHEADER, [
     "Accept: application/json"
 ]);
 
-// Set timeout to 60 seconds (Long enough for AI, but XAMPP handles it well)
-curl_setopt($ch, CURLOPT_TIMEOUT, 60);
+// Set timeout to 15 seconds to fail fast instead of hanging the UI
+curl_setopt($ch, CURLOPT_TIMEOUT, 15);
 
 $response = curl_exec($ch);
 $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
