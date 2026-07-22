@@ -157,10 +157,11 @@ function appendMessage(sender, text, imageBase64 = null) {
     }
     
     let ttsButton = '';
+    let uniqueId = '';
     if (sender === 'ai' && text !== 'Düşünüyor...' && !text.includes('Hata:')) {
-        const escapedText = encodeURIComponent(text);
+        uniqueId = 'tts-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
         ttsButton = `<div style="margin-top: 12px; border-top: 1px solid var(--border); padding-top: 8px;">
-            <button class="btn-outline tts-btn" style="padding: 4px 12px; font-size: 12px; border-radius: 20px;" onclick="speakText(this, decodeURIComponent('${escapedText}'))">
+            <button class="btn-outline tts-btn" id="${uniqueId}" style="padding: 4px 12px; font-size: 12px; border-radius: 20px;">
                 <i class="fa-solid fa-volume-high"></i> Sesli Dinle
             </button>
         </div>`;
@@ -175,6 +176,17 @@ function appendMessage(sender, text, imageBase64 = null) {
     `;
     messagesContainer.appendChild(msgDiv);
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+    if (uniqueId) {
+        setTimeout(() => {
+            const btn = document.getElementById(uniqueId);
+            if (btn) {
+                btn.addEventListener('click', function() {
+                    window.speakText(this, text);
+                });
+            }
+        }, 50);
+    }
 }
 
 if(sendBtn) sendBtn.addEventListener('click', sendMessage);
